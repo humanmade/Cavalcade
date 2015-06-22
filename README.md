@@ -114,11 +114,11 @@ your path.
 
 
 The runner will remain in the foreground by itself; use your normal system
-daemonisation tools or `nohup` with `&` to run it in the foreground.
+daemonisation tools, or `nohup` with `&` to run it in the foreground.
 We recommend:
 
 ```
-nohup bin/cavalcade | tee /var/log/cavalcade.log &
+nohup bin/cavalcade > /var/log/cavalcade.log &
 ```
 
 (Cavalcade outputs all relevant logging information to stdout, and only sends
