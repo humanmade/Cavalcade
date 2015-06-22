@@ -2,7 +2,6 @@
 
 namespace HM\Cavalcade\Plugin;
 
-add_filter( 'schedule_event',         __NAMESPACE__ . '\\schedule_event', 100 );
 add_filter( 'pre_update_option_cron', __NAMESPACE__ . '\\update_cron_array', 10, 2 );
 add_filter( 'pre_option_cron',        __NAMESPACE__ . '\\get_cron_array' );
 
