@@ -1,7 +1,28 @@
-# Cavalcade
-
-A better wp-cron. Scales horizontally across multiple servers, and works
-perfectly with multisite installs.
+<table width="100%">
+	<tr>
+		<td align="left" width="70">
+			<strong>Cavalcade</strong><br />
+			A better wp-cron. Horizontally scalable,
+			works perfectly with multisite.
+		</td>
+		<td align="right" width="20%">
+			<a href="https://travis-ci.org/humanmade/Cavalcade">
+				<img src="https://travis-ci.org/humanmade/Cavalcade.svg?branch=master" alt="Build status">
+			</a>
+			<a href="http://codecov.io/github/humanmade/Cavalcade?branch=master">
+				<img src="http://codecov.io/github/humanmade/Cavalcade/coverage.svg?branch=master" alt="Coverage via codecov.io" />
+			</a>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			A <strong><a href="https://www.ublock.org/">Human Made</a></strong> project. Maintained by @rmccue.
+		</td>
+		<td align="center">
+			<img src="https://hmn.md/content/themes/hmnmd/assets/images/hm-logo.svg" width="100" />
+		</td>
+	</tr>
+</table>
 
 **IMPORTANT NOTE:** This is extremely beta right now, and you're watching us
 develop and improve it. The code is open source so you can start trying it out
