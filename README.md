@@ -16,7 +16,7 @@
 	</tr>
 	<tr>
 		<td>
-			A <strong><a href="https://www.ublock.org/">Human Made</a></strong> project. Maintained by @rmccue.
+			A <strong><a href="https://hmn.md/">Human Made</a></strong> project. Maintained by @rmccue.
 		</td>
 		<td align="center">
 			<img src="https://hmn.md/content/themes/hmnmd/assets/images/hm-logo.svg" width="100" />
