@@ -65,7 +65,7 @@ class Command extends WP_CLI_Command {
 			$data[] = $assoc_args['hook'];
 		}
 
-		$query = "SELECT $log_table.*, $job_table.hook FROM {$wpdb->prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id WHERE $where";
+		$query = "SELECT $log_table.*, $job_table.hook,$job_table.args FROM {$wpdb->prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id WHERE $where";
 
 		if ( $data ) {
 			$query = $wpdb->prepare( $query, $data );
