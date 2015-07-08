@@ -52,20 +52,20 @@ class Command extends WP_CLI_Command {
 			'job'     => null,
 		));
 
-		$where = '1 = 1';
+		$where = array();
 		$data  = array();
 
 		if ( $assoc_args['job'] ) {
-			$where .= " AND job = %d";
-			$data[] = $assoc_args['job'];
+			$where[] = "job = %d";
+			$data[]  = $assoc_args['job'];
 		}
 
 		if ( $assoc_args['hook'] ) {
-			$where .= " AND hook = %s";
+			$where[] = "hook = %s";
 			$data[] = $assoc_args['hook'];
 		}
 
-		$query = "SELECT $log_table.*, $job_table.hook,$job_table.args FROM {$wpdb->prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id WHERE $where";
+		$query = "SELECT $log_table.*, $job_table.hook,$job_table.args FROM {$wpdb->prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id WHERE " . implode( ' AND ', $where );
 
 		if ( $data ) {
 			$query = $wpdb->prepare( $query, $data );
