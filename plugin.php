@@ -20,7 +20,7 @@ require __DIR__ . '/connector.php';
  */
 function bootstrap() {
 	if ( ! is_installed() ) {
-		create_table();
+		create_tables();
 	}
 }
 
@@ -47,10 +47,10 @@ function register_cli_commands() {
 function is_installed() {
 	global $wpdb;
 
-	return (bool) $wpdb->query( "SHOW TABLES LIKE '{$wpdb->base_prefix}cavalcade_jobs'" );
+	return count( $wpdb->get_col( "SHOW TABLES LIKE 'wp_cavalcade_%'" ) ) === 2;
 }
 
-function create_table() {
+function create_tables() {
 	global $wpdb;
 	$query = "CREATE TABLE IF NOT EXISTS `{$wpdb->base_prefix}cavalcade_jobs` (
 		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -69,6 +69,19 @@ function create_table() {
 	) ENGINE=InnoDB;\n";
 
 	// TODO: check return value
+	$wpdb->query( $query );
+
+	$query = "CREATE TABLE IF NOT EXISTS `{$wpdb->base_prefix}cavalcade_logs` (
+		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		`job` bigint(20) NOT NULL,
+		`status` varchar(255) NOT NULL DEFAULT '',
+		`timestamp` datetime NOT NULL,
+		`content` longtext NOT NULL,
+		PRIMARY KEY (`id`),
+		KEY `job` (`job`),
+		KEY `status` (`status`)
+	) ENGINE=InnoDB;\n";
+
 	$wpdb->query( $query );
 }
 

@@ -36,29 +36,6 @@ class Job {
 		return ! empty( $this->interval );
 	}
 
-	public function mark_completed() {
-		global $wpdb;
-
-		$data = array();
-		if ( $this->is_recurring() ) {
-			// Calculate next run, and prepare it
-			$this->nextrun = $this->nextrun + $this->interval;
-			$this->status  = 'waiting';
-			$data['nextrun'] = $this->nextrun;
-			$data['status']  = $this->status;
-		}
-		else {
-			// Mark it as done!
-			$this->status = 'completed';
-			$data['status'] = $this->status;
-		}
-
-		$where = array(
-			'id' => $this->id,
-		);
-		$result = $wpdb->update( $this->get_table(), $data, $where, $this->row_format( $data ), $this->row_format( $where ) );
-	}
-
 	public function save() {
 		global $wpdb;
 
