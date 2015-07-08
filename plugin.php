@@ -71,7 +71,7 @@ function create_tables() {
 	// TODO: check return value
 	$wpdb->query( $query );
 
-	$query = "CREATE TABLE `{$wpdb->base_prefix}cavalcade_logs` (
+	$query = "CREATE TABLE IF NOT EXISTS `{$wpdb->base_prefix}cavalcade_logs` (
 		`id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
 		`job` bigint(20) NOT NULL,
 		`status` varchar(255) NOT NULL DEFAULT '',
