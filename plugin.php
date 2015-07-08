@@ -72,7 +72,7 @@ function create_tables() {
 	$wpdb->query( $query );
 
 	$query = "CREATE TABLE IF NOT EXISTS `{$wpdb->base_prefix}cavalcade_logs` (
-		`id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
+		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		`job` bigint(20) NOT NULL,
 		`status` varchar(255) NOT NULL DEFAULT '',
 		`timestamp` datetime NOT NULL,
@@ -80,7 +80,7 @@ function create_tables() {
 		PRIMARY KEY (`id`),
 		KEY `job` (`job`),
 		KEY `status` (`status`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n";
+	) ENGINE=InnoDB;\n";
 
 	$wpdb->query( $query );
 }
