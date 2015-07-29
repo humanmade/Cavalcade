@@ -19,6 +19,8 @@ require __DIR__ . '/connector.php';
  * Bootstrap the plugin and get it started!
  */
 function bootstrap() {
+	wp_cache_add_global_groups( array( 'cavalcade' ) );
+
 	if ( ! is_installed() ) {
 		create_tables();
 	}
@@ -47,7 +49,18 @@ function register_cli_commands() {
 function is_installed() {
 	global $wpdb;
 
-	return count( $wpdb->get_col( "SHOW TABLES LIKE 'wp_cavalcade_%'" ) ) === 2;
+	if ( wp_cache_get( 'installed', 'cavalcade' ) ) {
+		return true;
+	}
+
+	$installed = ( count( $wpdb->get_col( "SHOW TABLES LIKE 'wp_cavalcade_%'" ) ) === 2 );
+
+	if ( $installed ) {
+		// Don't check again :)
+		wp_cache_set( 'installed', $installed, 'cavalcade' );
+	}
+
+	return $installed;
 }
 
 function create_tables() {
