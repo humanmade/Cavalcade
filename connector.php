@@ -114,7 +114,7 @@ function update_cron_array( $value, $old_value ) {
 			'timestamp' => $item['timestamp'],
 			'args'      => $item['value']['args'],
 		);
-		if ( isset( $item['value']['schedule'] ) ) {
+		if ( ! empty( $item['value']['schedule'] ) ) {
 			$event->schedule = $item['value']['schedule'];
 			$event->interval = $item['value']['interval'];
 		}
