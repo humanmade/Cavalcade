@@ -76,6 +76,12 @@ function update_cron_array( $value, $old_value ) {
 		foreach ( $crons as $timestamp => $hooks ) {
 			foreach ( $hooks as $hook => $groups ) {
 				foreach ( $groups as $key => $item ) {
+					// Workaround for https://core.trac.wordpress.org/ticket/33423
+					if ( $timestamp === 'wp_batch_split_terms' ) {
+						$timestamp = $hook;
+						$hook = 'wp_batch_split_terms';
+					}
+
 					$real_key = sha1( $timestamp . $hook . $key );
 					$new[ $real_key ] = array(
 						'timestamp' => $timestamp,
