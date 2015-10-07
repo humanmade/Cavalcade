@@ -53,7 +53,7 @@ function is_installed() {
 		return true;
 	}
 
-	$installed = ( count( $wpdb->get_col( "SHOW TABLES LIKE 'wp_cavalcade_%'" ) ) === 2 );
+	$installed = ( count( $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->base_prefix}cavalcade_%'" ) ) === 2 );
 
 	if ( $installed ) {
 		// Don't check again :)
