@@ -129,6 +129,11 @@ wp-cron functions, such as `wp_schedule_event`, `wp_schedule_single_event` and
 events you see appear in your jobs table will likely be WP's normal core events
 such as update checks.
 
+Disable the built in WordPress cron in `wp-config.php`:
+```
+define( 'DISABLE_WP_CRON', true );
+```
+
 ### Runner
 
 This is the more complex part. Grab the Cavalcade runner from
