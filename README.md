@@ -130,9 +130,24 @@ events you see appear in your jobs table will likely be WP's normal core events
 such as update checks.
 
 Disable the built in WordPress cron in `wp-config.php`:
+
 ```
 define( 'DISABLE_WP_CRON', true );
 ```
+
+### WP-CLI commands
+
+There are three commands for WP-CLI bundled in Cavalcade. You can type `wp cavalcade` to see the commands at any time.
+
+```
+usage: wp cavalcade jobs [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>]
+   or: wp cavalcade log [--format=<format>] [--fields=<fields>] [--job=<job-id>] [--hook=<hook>]
+   or: wp cavalcade run <id>
+```
+
+1. `wp cavalcade jobs` will list all of the jobs. This command is useful for showing jobs that are queued. e.g. `wp cavalcade jobs --status=waiting`
+2. `wp cavalcade log` shows logs of completed jobs.
+3. `wp cavalcade run` will run a job.
 
 ### Runner
 
