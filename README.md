@@ -129,6 +129,20 @@ wp-cron functions, such as `wp_schedule_event`, `wp_schedule_single_event` and
 events you see appear in your jobs table will likely be WP's normal core events
 such as update checks.
 
+### WP-CLI commands
+
+There are three commands for WP-CLI bundled in Cavalcade. You can type `wp cavalcade` to see the commands at any time.
+
+```
+usage: wp cavalcade jobs [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>]
+   or: wp cavalcade log [--format=<format>] [--fields=<fields>] [--job=<job-id>] [--hook=<hook>]
+   or: wp cavalcade run <id>
+```
+
+1. `wp cavalcade jobs` will list all of the jobs. This command is useful for showing jobs that are queued. e.g. `wp cavalcade jobs --status=waiting`
+2. `wp cavalcade log` shows logs of completed jobs.
+3. `wp cavalcade run` will run a job.
+
 ### Runner
 
 This is the more complex part. Grab the Cavalcade runner from
