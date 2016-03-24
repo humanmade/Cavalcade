@@ -77,4 +77,63 @@ class Command extends WP_CLI_Command {
 
 		\WP_CLI\Utils\format_items( $assoc_args['format'], $logs, explode( ',', $assoc_args['fields'] ) );
 	}
+
+	/**
+	 * Show jobs.
+	 *
+	 * @synopsis [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>]
+	 */
+	public function jobs( $args, $assoc_args  ) {
+
+		global $wpdb;
+
+		$assoc_args = wp_parse_args( $assoc_args, array(
+			'format'  => 'table',
+			'fields'  => 'id,site,hook,start,nextrun,status',
+			'id'      => null,
+			'site'    => null,
+			'hook'    => null,
+			'status'  => null,
+		));
+
+		$where = array();
+		$data  = array();
+
+		if ( $assoc_args['id'] ) {
+			$where[] = "id = %d";
+			$data[]  = $assoc_args['id'];
+		}
+
+		if ( $assoc_args['site'] ) {
+			$where[] = "site = %d";
+			$data[]  = $assoc_args['site'];
+		}
+
+		if ( $assoc_args['hook'] ) {
+			$where[] = "hook = %s";
+			$data[] = $assoc_args['hook'];
+		}
+
+		if ( $assoc_args['status'] ) {
+			$where[] = "status = %s";
+			$data[] = $assoc_args['status'];
+		}
+
+		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
+
+		$query = "SELECT * FROM {$wpdb->prefix}cavalcade_jobs $where";
+
+		if ( $data ) {
+			$query = $wpdb->prepare( $query, $data );
+		}
+
+		$logs = $wpdb->get_results( $query );
+
+		if ( empty( $logs ) ) {
+			\WP_CLI::error( 'No Cavalcade jobs found.' );
+		} else {
+			\WP_CLI\Utils\format_items( $assoc_args['format'], $logs, explode( ',', $assoc_args['fields'] ) );
+		}
+
+	}
 }
