@@ -150,6 +150,7 @@ class Job {
 	 * Get jobs by site ID
 	 *
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
+	 * @param bool $include_completed Should we include completed jobs?
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
 	 */
 	public static function get_by_site( $site, $include_completed = false ) {
