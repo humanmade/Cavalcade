@@ -170,6 +170,13 @@ nohup bin/cavalcade > /var/log/cavalcade.log &
 (Cavalcade outputs all relevant logging information to stdout, and only sends
 meta-information such as shutdown notices to stderr.)
 
+Note: The runner has two additional requirements:
+
+* **pcntl** - The [Process Control PHP extension](http://php.net/pcntl) must be installed. Cavalcade Runner uses this to spawn worker processes and keep monitor them.
+* **wp-cli** - wp-cli must be installed on your server and available in the PATH. Cavalcade Runner internally calls `wp cavalcade run <id>` to run the jobs.
+
+The runner is an independent piece of Cavalcade, so writing your own runner is possible if you have alternative requirements.
+
 ## Who?
 
 Created by Human Made for high volume and large-scale sites, such as
