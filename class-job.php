@@ -152,7 +152,7 @@ class Job {
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
 	 */
-	public static function get_by_site( $site ) {
+	public static function get_by_site( $site, $include_completed = false ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -166,7 +166,11 @@ class Job {
 
 		// Find all scheduled events for this site
 		$table = static::get_table();
-		$query = $wpdb->prepare( "SELECT * FROM `{$table}` WHERE site = %d", $site );
+		$sql = "SELECT * FROM `{$table}` WHERE site = %d";
+		if ( ! $include_completed ) {
+			$sql .= ' AND status != "completed"';
+		}
+		$query = $wpdb->prepare( $sql, $site );
 		$results = $wpdb->get_results( $query );
 		if ( empty( $results ) ) {
 			return array();
