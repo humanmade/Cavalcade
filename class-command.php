@@ -42,8 +42,8 @@ class Command extends WP_CLI_Command {
 
 		global $wpdb;
 
-		$log_table = $wpdb->prefix . 'cavalcade_logs';
-		$job_table = $wpdb->prefix . 'cavalcade_jobs';
+		$log_table = $wpdb->base_prefix . 'cavalcade_logs';
+		$job_table = $wpdb->base_prefix . 'cavalcade_jobs';
 
 		$assoc_args = wp_parse_args( $assoc_args, array(
 			'format'  => 'table',
@@ -67,7 +67,7 @@ class Command extends WP_CLI_Command {
 
 		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
 
-		$query = "SELECT $log_table.*, $job_table.hook,$job_table.args FROM {$wpdb->prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id $where";
+		$query = "SELECT $log_table.*, $job_table.hook,$job_table.args FROM {$wpdb->base_prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id $where";
 
 		if ( $data ) {
 			$query = $wpdb->prepare( $query, $data );
@@ -121,7 +121,7 @@ class Command extends WP_CLI_Command {
 
 		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
 
-		$query = "SELECT * FROM {$wpdb->prefix}cavalcade_jobs $where";
+		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where";
 
 		if ( $data ) {
 			$query = $wpdb->prepare( $query, $data );
