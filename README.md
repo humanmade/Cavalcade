@@ -24,11 +24,6 @@
 	</tr>
 </table>
 
-**IMPORTANT NOTE:** This is extremely beta right now, and you're watching us
-develop and improve it. The code is open source so you can start trying it out
-now, but please be careful before using this in production. If you don't know
-how to debug it, please hold off using it yet.
-
 ## What?
 
 Cavalcade is a scalable job system, designed as a drop-in replacement for
@@ -181,7 +176,9 @@ The runner is an independent piece of Cavalcade, so writing your own runner is p
 
 Created by Human Made for high volume and large-scale sites, such as
 [Happytables](http://happytables.com/). We run Cavalcade on sites with millions
-of monthly page views, and thousands of sites.
+of monthly page views, and thousands of sites, including
+[The Tab](http://thetab.com/), and the
+[United Influencers](http://unitedinfluencers.se/) network.
 
 Maintained by [Ryan McCue](https://github.com/rmccue).
 
