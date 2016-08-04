@@ -22,6 +22,9 @@ class Command extends WP_CLI_Command {
 			WP_CLI::error( 'Invalid job ID' );
 		}
 
+		// Handle SIGTERM calls as we don't want to kill a running job
+		pcntl_signal( SIGTERM, SIG_IGN );
+
 		/**
 		 * Fires scheduled events.
 		 *
