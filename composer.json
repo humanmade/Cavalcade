@@ -1,5 +1,5 @@
 {
-    "name": "humanmade/Cavalcade",
+    "name": "humanmade/cavalcade",
     "description": "A better wp-cron. Horizontally scalable, works perfectly with multisite.",
     "homepage": "https://github.com/humanmade/Cavalcade",
     "type": "wordpress-muplugin",
