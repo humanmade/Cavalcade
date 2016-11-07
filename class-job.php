@@ -51,7 +51,7 @@ class Job {
 			$data['interval'] = $this->interval;
 		}
 
-		wp_cache_delete( "jobs:{$this->site}" );
+		wp_cache_delete( "jobs:{$this->site}", 'cavalcade-jobs' );
 
 		if ( $this->is_created() ) {
 			$where = array(
@@ -83,7 +83,7 @@ class Job {
 		);
 		$result = $wpdb->delete( $this->get_table(), $where, $this->row_format( $where ) );
 
-		wp_cache_delete( "jobs:{$this->site}" );
+		wp_cache_delete( "jobs:{$this->site}", 'cavalcade-jobs' );
 
 		return (bool) $result;
 

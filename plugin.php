@@ -20,6 +20,7 @@ require __DIR__ . '/connector.php';
  */
 function bootstrap() {
 	wp_cache_add_global_groups( array( 'cavalcade' ) );
+	wp_cache_add_non_persistent_groups( array( 'cavalcade-jobs' ) );
 
 	if ( ! is_installed() ) {
 		create_tables();
