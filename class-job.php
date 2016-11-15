@@ -176,8 +176,10 @@ class Job {
 
 		// Find all scheduled events for this site
 		$table = static::get_table();
-		$sql = "SELECT * FROM `{$table}` WHERE site = %d AND status IN('" . implode( "','", $statuses ) . "')";
-		$query = $wpdb->prepare( $sql, $site );
+		
+		$sql = "SELECT * FROM `{$table}` WHERE site = %d";
+		$sql .= " AND status IN(" . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ")";
+		$query = $wpdb->prepare( $sql, array_merge( array( $site ), $statuses ) );
 		$results = $wpdb->get_results( $query );
 		if ( empty( $results ) ) {
 			return array();
