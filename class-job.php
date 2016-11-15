@@ -195,6 +195,7 @@ class Job {
             if ( ! $include_completed && ! $include_failed ) {
                 wp_cache_set( "jobs:{$site}", $results, 'cavalcade' );
             }
+
 		}
 
 		if ( empty( $results ) ) {
