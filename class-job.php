@@ -171,9 +171,9 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
-        if ( ! $include_completed && ! $include_failed ) {
-            $results = wp_cache_get( "jobs:{$site}", 'cavalcade' );
-        }
+		if ( ! $include_completed && ! $include_failed ) {
+			$results = wp_cache_get( "jobs:{$site}", 'cavalcade' );
+		}
 
 		if ( isset( $results ) && ! $results ) {
 			$statuses = array( 'waiting', 'running' );
@@ -192,9 +192,9 @@ class Job {
 			$query = $wpdb->prepare( $sql, array_merge( array( $site ), $statuses ) );
 			$results = $wpdb->get_results( $query );
 
-            if ( ! $include_completed && ! $include_failed ) {
-                wp_cache_set( "jobs:{$site}", $results, 'cavalcade' );
-            }
+			if ( ! $include_completed && ! $include_failed ) {
+				wp_cache_set( "jobs:{$site}", $results, 'cavalcade' );
+			}
 
 		}
 
