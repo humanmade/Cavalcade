@@ -151,9 +151,10 @@ class Job {
 	 *
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
 	 * @param bool $include_completed Should we include completed jobs?
+	 * @param bool $include_failed Should we include failed jobs?
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
 	 */
-	public static function get_by_site( $site, $include_completed = false ) {
+	public static function get_by_site( $site, $include_completed = false, $include_failed = false ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -165,12 +166,17 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
+		$statuses = array( 'waiting', 'running' );
+		if ( $include_completed ) {
+			$statuses[] = 'completed';
+		}
+		if ( $include_failed ) {
+			$statuses[] = 'failed';
+		}
+
 		// Find all scheduled events for this site
 		$table = static::get_table();
-		$sql = "SELECT * FROM `{$table}` WHERE site = %d";
-		if ( ! $include_completed ) {
-			$sql .= ' AND status != "completed"';
-		}
+		$sql = "SELECT * FROM `{$table}` WHERE site = %d AND status IN('" . implode( "','", $statuses ) . "')";
 		$query = $wpdb->prepare( $sql, $site );
 		$results = $wpdb->get_results( $query );
 		if ( empty( $results ) ) {
