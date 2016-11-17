@@ -51,7 +51,7 @@ class Job {
 			$data['interval'] = $this->interval;
 		}
 
-		wp_cache_delete( "jobs:{$this->site}", 'cavalcade-jobs' );
+		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
 
 		if ( $this->is_created() ) {
 			$where = array(
@@ -83,7 +83,7 @@ class Job {
 		);
 		$result = $wpdb->delete( $this->get_table(), $where, $this->row_format( $where ) );
 
-		wp_cache_delete( "jobs:{$this->site}", 'cavalcade-jobs' );
+		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
 
 		return (bool) $result;
 
@@ -193,7 +193,7 @@ class Job {
 			$results = $wpdb->get_results( $query );
 
 			if ( ! $include_completed && ! $include_failed ) {
-				wp_cache_set( "jobs:{$site}", $results, 'cavalcade' );
+				wp_cache_set( 'jobs', $results, 'cavalcade' );
 			}
 
 		}
