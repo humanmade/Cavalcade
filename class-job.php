@@ -51,6 +51,8 @@ class Job {
 			$data['interval'] = $this->interval;
 		}
 
+		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+
 		if ( $this->is_created() ) {
 			$where = array(
 				'id' => $this->id,
@@ -80,6 +82,9 @@ class Job {
 			'id' => $this->id,
 		);
 		$result = $wpdb->delete( $this->get_table(), $where, $this->row_format( $where ) );
+
+		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+
 		return (bool) $result;
 
 	}
@@ -166,21 +171,33 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
-		$statuses = array( 'waiting', 'running' );
-		if ( $include_completed ) {
-			$statuses[] = 'completed';
-		}
-		if ( $include_failed ) {
-			$statuses[] = 'failed';
+		if ( ! $include_completed && ! $include_failed ) {
+			$results = wp_cache_get( "jobs:{$site}", 'cavalcade' );
 		}
 
-		// Find all scheduled events for this site
-		$table = static::get_table();
-		
-		$sql = "SELECT * FROM `{$table}` WHERE site = %d";
-		$sql .= " AND status IN(" . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ")";
-		$query = $wpdb->prepare( $sql, array_merge( array( $site ), $statuses ) );
-		$results = $wpdb->get_results( $query );
+		if ( isset( $results ) && ! $results ) {
+			$statuses = array( 'waiting', 'running' );
+			if ( $include_completed ) {
+				$statuses[] = 'completed';
+			}
+			if ( $include_failed ) {
+				$statuses[] = 'failed';
+			}
+
+			// Find all scheduled events for this site
+			$table = static::get_table();
+
+			$sql = "SELECT * FROM `{$table}` WHERE site = %d";
+			$sql .= " AND status IN(" . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ")";
+			$query = $wpdb->prepare( $sql, array_merge( array( $site ), $statuses ) );
+			$results = $wpdb->get_results( $query );
+
+			if ( ! $include_completed && ! $include_failed ) {
+				wp_cache_set( 'jobs', $results, 'cavalcade' );
+			}
+
+		}
+
 		if ( empty( $results ) ) {
 			return array();
 		}
