@@ -19,12 +19,24 @@ require __DIR__ . '/connector.php';
  * Bootstrap the plugin and get it started!
  */
 function bootstrap() {
-	wp_cache_add_global_groups( array( 'cavalcade' ) );
-	wp_cache_add_non_persistent_groups( array( 'cavalcade-jobs' ) );
+	register_cache_groups();
 
 	if ( ! is_installed() ) {
 		create_tables();
 	}
+}
+
+/**
+ * Register the cache groups
+ */
+function register_cache_groups() {
+	wp_cache_add_global_groups( array( 'cavalcade' ) );
+	wp_cache_add_non_persistent_groups( array( 'cavalcade-jobs' ) );
+}
+
+// Register cache groups as early as possible, as some plugins may use cron functions before plugins_loaded
+if ( function_exists( 'wp_cache_add_global_groups' ) ) {
+	register_cache_groups();
 }
 
 /**
