@@ -172,7 +172,7 @@ class Job {
 		}
 
 		if ( ! $include_completed && ! $include_failed ) {
-			$results = wp_cache_get( "jobs:{$site}", 'cavalcade' );
+			$results = wp_cache_get( 'jobs', 'cavalcade' );
 		}
 
 		if ( isset( $results ) && ! $results ) {
