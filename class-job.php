@@ -172,7 +172,7 @@ class Job {
 		}
 
 		if ( ! $include_completed && ! $include_failed ) {
-			$results = wp_cache_get( 'jobs', 'cavalcade' );
+			$results = wp_cache_get( 'jobs', 'cavalcade-jobs' );
 		}
 
 		if ( isset( $results ) && ! $results ) {
@@ -193,7 +193,7 @@ class Job {
 			$results = $wpdb->get_results( $query );
 
 			if ( ! $include_completed && ! $include_failed ) {
-				wp_cache_set( 'jobs', $results, 'cavalcade' );
+				wp_cache_set( 'jobs', $results, 'cavalcade-jobs' );
 			}
 
 		}
