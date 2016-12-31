@@ -169,7 +169,7 @@ function get_cron_array( $value ) {
 		$key = md5( serialize( $result->args ) );
 
 		$value = array(
-			'schedule' => $result->schedule ?: '__fake_schedule',
+			'schedule' => $result->schedule ?: ( $result->interval ? '__fake_schedule' : false ),
 			'args'     => $result->args,
 			'_job'     => $result,
 		);
