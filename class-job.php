@@ -171,11 +171,12 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
+		$results = false;
 		if ( ! $include_completed && ! $include_failed ) {
 			$results = wp_cache_get( 'jobs', 'cavalcade-jobs' );
 		}
 
-		if ( isset( $results ) && ! $results ) {
+		if ( false === $results ) {
 			$statuses = array( 'waiting', 'running' );
 			if ( $include_completed ) {
 				$statuses[] = 'completed';
