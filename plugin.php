@@ -88,6 +88,7 @@ function create_tables() {
 		`start` datetime NOT NULL,
 		`nextrun` datetime NOT NULL,
 		`interval` int unsigned DEFAULT NULL,
+		`schedule` varchar(255) DEFAULT NULL,
 		`status` varchar(255) NOT NULL DEFAULT 'waiting',
 
 		PRIMARY KEY (`id`),
