@@ -119,7 +119,7 @@ function update_cron_array( $value, $old_value ) {
 			$event->schedule = $item['value']['schedule'];
 			$event->interval = $item['value']['interval'];
 		}
-var_dump( $item, $event );
+
 		schedule_event( $event );
 	}
 
