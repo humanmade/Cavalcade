@@ -118,6 +118,11 @@ high traffic, large installs. Don't install it on every site just for fun.
 Clone or submodule this repository into your `mu-plugins` directory, and load it
 as an MU plugin.
 
+```
+cd /path/to/your/mu-plugins
+ln -s cavalcade/plugin.php cavalcade.php
+```
+
 To start using it in your code, don't change anything. Simply use the normal
 wp-cron functions, such as `wp_schedule_event`, `wp_schedule_single_event` and
 `wp_next_scheduled`. Cavalcade integrates seamlessly into these, and the first
