@@ -84,7 +84,7 @@ class Command extends WP_CLI_Command {
 	/**
 	 * Show jobs.
 	 *
-	 * @synopsis [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>]
+	 * @synopsis [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>] [--limit=<limit>]
 	 */
 	public function jobs( $args, $assoc_args  ) {
 
@@ -97,6 +97,7 @@ class Command extends WP_CLI_Command {
 			'site'    => null,
 			'hook'    => null,
 			'status'  => null,
+			'limit'   => 20,
 		));
 
 		$where = array();
@@ -123,8 +124,10 @@ class Command extends WP_CLI_Command {
 		}
 
 		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
+		$limit = "LIMIT %d";
+		$data[] = absint( $assoc_args['limit'] );
 
-		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where";
+		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where $limit";
 
 		if ( $data ) {
 			$query = $wpdb->prepare( $query, $data );
