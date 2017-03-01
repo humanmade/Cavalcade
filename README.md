@@ -116,11 +116,12 @@ high traffic, large installs. Don't install it on every site just for fun.
 ### WordPress Plugin
 
 Clone or submodule this repository into your `mu-plugins` directory, and load it
-as an MU plugin.
+as an MU plugin. For example, create `mu-plugins/cavalcade.php` with the
+following code:
 
 ```
-cd /path/to/your/mu-plugins
-ln -s cavalcade/plugin.php cavalcade.php
+<?php
+require_once __DIR__ . '/cavalcade/plugin.php';
 ```
 
 To start using it in your code, don't change anything. Simply use the normal
