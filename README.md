@@ -178,6 +178,10 @@ Note: The runner has two additional requirements:
 
 The runner is an independent piece of Cavalcade, so writing your own runner is possible if you have alternative requirements.
 
+## License
+
+Cavalcade is [licensed under the GPLv2 or later](LICENSE.txt).
+
 ## Who?
 
 Created by Human Made for high volume and large-scale sites, such as
