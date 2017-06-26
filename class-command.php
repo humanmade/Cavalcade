@@ -25,6 +25,9 @@ class Command extends WP_CLI_Command {
 		// Handle SIGTERM calls as we don't want to kill a running job
 		pcntl_signal( SIGTERM, SIG_IGN );
 
+		// Set the wp-cron constant for plugin and theme interactions
+		defined( 'DOING_CRON' ) or define( 'DOING_CRON', true );
+
 		/**
 		 * Fires scheduled events.
 		 *
