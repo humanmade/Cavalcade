@@ -5,4 +5,3 @@ install:
   - composer install
 script:
   - vendor/bin/phpcs --standard=vendor/humanmade/coding-standards .
-  - test -f "phpunit.xml"
