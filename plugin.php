@@ -13,7 +13,7 @@ add_action( 'plugins_loaded',         __NAMESPACE__ . '\\bootstrap' );
 add_action( 'plugins_loaded',         __NAMESPACE__ . '\\register_cli_commands' );
 
 require __DIR__ . '/inc/class-job.php';
-require __DIR__ . '/connector.php';
+require __DIR__ . '/inc/connector/namespace.php';
 
 /**
  * Bootstrap the plugin and get it started!

@@ -1,6 +1,8 @@
 <?php
 
-namespace HM\Cavalcade\Plugin;
+namespace HM\Cavalcade\Plugin\Connector;
+
+use HM\Cavalcade\Job;
 
 add_filter( 'pre_update_option_cron', __NAMESPACE__ . '\\update_cron_array', 10, 2 );
 add_filter( 'pre_option_cron',        __NAMESPACE__ . '\\get_cron_array' );
