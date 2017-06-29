@@ -1,15 +1,18 @@
 {
-    "name": "humanmade/cavalcade",
-    "description": "A better wp-cron. Horizontally scalable, works perfectly with multisite.",
-    "homepage": "https://github.com/humanmade/Cavalcade",
-    "type": "wordpress-muplugin",
-    "authors": [
-        {
-            "name": "Human Made",
-            "homepage": "https://hmn.md/"
-        }
-    ],
-    "require": {
-        "composer/installers": "~1.0"
-    }
+	"name": "humanmade/cavalcade",
+	"description": "A better wp-cron. Horizontally scalable, works perfectly with multisite.",
+	"homepage": "https://github.com/humanmade/Cavalcade",
+	"type": "wordpress-muplugin",
+	"authors": [
+		{
+			"name": "Human Made",
+			"homepage": "https://hmn.md/"
+		}
+	],
+	"require": {
+		"composer/installers": "~1.0"
+	},
+	"require-dev": {
+		"humanmade/coding-standards": "dev-master"
+	}
 }

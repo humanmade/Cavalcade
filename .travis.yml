@@ -1,0 +1,6 @@
+language: php
+php:
+  - '7.1'
+script:
+  - vendor/bin/phpcs --standard=vendor/humanmade/coding-standards .
+  - test -f "phpunit.xml"
