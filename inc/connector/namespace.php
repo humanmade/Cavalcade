@@ -94,7 +94,7 @@ function update_cron_array( $value, $old_value ) {
 						'timestamp' => $timestamp,
 						'hook' => $hook,
 						'key' => $key,
-						'value' => $item
+						'value' => $item,
 					];
 				}
 			}

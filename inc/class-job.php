@@ -58,8 +58,7 @@ class Job {
 				'id' => $this->id,
 			];
 			$result = $wpdb->update( $this->get_table(), $data, $where, $this->row_format( $data ), $this->row_format( $where ) );
-		}
-		else {
+		} else {
 			$result = $wpdb->insert( $this->get_table(), $data, $this->row_format( $data ) );
 			$this->id = $wpdb->insert_id;
 		}
@@ -195,7 +194,6 @@ class Job {
 			if ( ! $include_completed && ! $include_failed ) {
 				wp_cache_set( 'jobs', $results, 'cavalcade-jobs' );
 			}
-
 		}
 
 		if ( empty( $results ) ) {
