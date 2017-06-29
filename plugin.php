@@ -11,6 +11,7 @@ const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
 
 add_action( 'plugins_loaded',         __NAMESPACE__ . '\\bootstrap' );
 add_action( 'plugins_loaded',         __NAMESPACE__ . '\\register_cli_commands' );
+add_action( 'plugins_loaded',         __NAMESPACE__ . '\\Connector\\bootstrap' );
 
 require __DIR__ . '/inc/class-job.php';
 require __DIR__ . '/inc/connector/namespace.php';
