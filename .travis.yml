@@ -1,6 +1,8 @@
 language: php
 php:
   - '7.1'
+install:
+  - composer install
 script:
   - vendor/bin/phpcs --standard=vendor/humanmade/coding-standards .
   - test -f "phpunit.xml"
