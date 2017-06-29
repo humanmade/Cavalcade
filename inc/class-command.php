@@ -62,12 +62,12 @@ class Command extends WP_CLI_Command {
 		$data  = [];
 
 		if ( $assoc_args['job'] ) {
-			$where[] = "job = %d";
+			$where[] = 'job = %d';
 			$data[]  = $assoc_args['job'];
 		}
 
 		if ( $assoc_args['hook'] ) {
-			$where[] = "hook = %s";
+			$where[] = 'hook = %s';
 			$data[] = $assoc_args['hook'];
 		}
 
@@ -108,30 +108,30 @@ class Command extends WP_CLI_Command {
 		$data  = [];
 
 		if ( $assoc_args['id'] ) {
-			$where[] = "id = %d";
+			$where[] = 'id = %d';
 			$data[]  = $assoc_args['id'];
 		}
 
 		if ( $assoc_args['site'] ) {
-			$where[] = "site = %d";
+			$where[] = 'site = %d';
 			$data[]  = $assoc_args['site'];
 		}
 
 		if ( $assoc_args['hook'] ) {
-			$where[] = "hook = %s";
+			$where[] = 'hook = %s';
 			$data[] = $assoc_args['hook'];
 		}
 
 		if ( $assoc_args['status'] ) {
-			$where[] = "status = %s";
+			$where[] = 'status = %s';
 			$data[] = $assoc_args['status'];
 		}
 
 		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
 
-		$limit = "LIMIT %d";
+		$limit = 'LIMIT %d';
 		$data[] = absint( $assoc_args['limit'] );
-		$offset = "OFFSET %d";
+		$offset = 'OFFSET %d';
 		$data[] = absint( ( $assoc_args['page'] - 1 ) * $assoc_args['limit'] );
 
 		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where $limit $offset";

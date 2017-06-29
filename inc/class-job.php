@@ -188,7 +188,7 @@ class Job {
 			$table = static::get_table();
 
 			$sql = "SELECT * FROM `{$table}` WHERE site = %d";
-			$sql .= " AND status IN(" . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ")";
+			$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ')';
 			$query = $wpdb->prepare( $sql, array_merge( [ $site ], $statuses ) );
 			$results = $wpdb->get_results( $query );
 
