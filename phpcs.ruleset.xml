@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset>
+	<!-- Add files to check. -->
+	<file>inc/</file>
+	<file>plugin.php</file>
+
+	<!-- Use HM Coding Standards -->
+	<rule ref="vendor/humanmade/coding-standards">
+		<!-- Disable dumb DB complaints -->
+		<exclude name="WordPress.WP.PreparedSQL" />
+		<exclude name="WordPress.DB.RestrictedFunctions.mysql" />
+	</rule>
+</ruleset>

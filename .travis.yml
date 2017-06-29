@@ -4,4 +4,4 @@ php:
 install:
   - composer install
 script:
-  - vendor/bin/phpcs --standard=vendor/humanmade/coding-standards .
+  - vendor/bin/phpcs --standard=phpcs.ruleset.xml .
