@@ -12,7 +12,7 @@ const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
 add_action( 'plugins_loaded',         __NAMESPACE__ . '\\bootstrap' );
 add_action( 'plugins_loaded',         __NAMESPACE__ . '\\register_cli_commands' );
 
-require __DIR__ . '/class-job.php';
+require __DIR__ . '/inc/class-job.php';
 require __DIR__ . '/connector.php';
 
 /**
@@ -47,7 +47,7 @@ function register_cli_commands() {
 		return;
 	}
 
-	require __DIR__ . '/class-command.php';
+	require __DIR__ . '/inc/class-command.php';
 	WP_CLI::add_command( 'cavalcade', __NAMESPACE__ . '\\Command' );
 }
 
