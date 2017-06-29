@@ -49,6 +49,7 @@ function schedule_recurring_event( $event ) {
 	$job->site = get_current_blog_id();
 	$job->start = $job->nextrun = $event->timestamp;
 	$job->interval = $event->interval;
+	$job->schedule = $event->schedule;
 	$job->args = $event->args;
 
 	$job->save();
@@ -166,8 +167,9 @@ function get_cron_array( $value ) {
 		$timestamp = $result->nextrun;
 		$hook = $result->hook;
 		$key = md5( serialize( $result->args ) );
+
 		$value = array(
-			'schedule' => '__fake_schedule',
+			'schedule' => $result->schedule ?: ( $result->interval ? '__fake_schedule' : false ),
 			'args'     => $result->args,
 			'_job'     => $result,
 		);
