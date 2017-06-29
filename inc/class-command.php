@@ -51,15 +51,15 @@ class Command extends WP_CLI_Command {
 		$log_table = $wpdb->base_prefix . 'cavalcade_logs';
 		$job_table = $wpdb->base_prefix . 'cavalcade_jobs';
 
-		$assoc_args = wp_parse_args( $assoc_args, array(
+		$assoc_args = wp_parse_args( $assoc_args, [
 			'format'  => 'table',
 			'fields'  => 'job,hook,timestamp,status',
 			'hook'    => null,
 			'job'     => null,
-		));
+		]);
 
-		$where = array();
-		$data  = array();
+		$where = [];
+		$data  = [];
 
 		if ( $assoc_args['job'] ) {
 			$where[] = "job = %d";
@@ -93,7 +93,7 @@ class Command extends WP_CLI_Command {
 
 		global $wpdb;
 
-		$assoc_args = wp_parse_args( $assoc_args, array(
+		$assoc_args = wp_parse_args( $assoc_args, [
 			'format'  => 'table',
 			'fields'  => 'id,site,hook,start,nextrun,status',
 			'id'      => null,
@@ -102,10 +102,10 @@ class Command extends WP_CLI_Command {
 			'status'  => null,
 			'limit'   => 20,
 			'page'    => 1,
-		));
+		]);
 
-		$where = array();
-		$data  = array();
+		$where = [];
+		$data  = [];
 
 		if ( $assoc_args['id'] ) {
 			$where[] = "id = %d";

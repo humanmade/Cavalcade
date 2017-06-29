@@ -31,8 +31,8 @@ function bootstrap() {
  * Register the cache groups
  */
 function register_cache_groups() {
-	wp_cache_add_global_groups( array( 'cavalcade' ) );
-	wp_cache_add_non_persistent_groups( array( 'cavalcade-jobs' ) );
+	wp_cache_add_global_groups( [ 'cavalcade' ] );
+	wp_cache_add_non_persistent_groups( [ 'cavalcade-jobs' ] );
 }
 
 // Register cache groups as early as possible, as some plugins may use cron functions before plugins_loaded

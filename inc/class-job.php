@@ -39,13 +39,13 @@ class Job {
 	public function save() {
 		global $wpdb;
 
-		$data = array(
+		$data = [
 			'hook'    => $this->hook,
 			'site'    => $this->site,
 			'start'   => gmdate( MYSQL_DATE_FORMAT, $this->start ),
 			'nextrun' => gmdate( MYSQL_DATE_FORMAT, $this->nextrun ),
 			'args'    => serialize( $this->args ),
-		);
+		];
 
 		if ( $this->is_recurring() ) {
 			$data['interval'] = $this->interval;
@@ -54,9 +54,9 @@ class Job {
 		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
 
 		if ( $this->is_created() ) {
-			$where = array(
+			$where = [
 				'id' => $this->id,
-			);
+			];
 			$result = $wpdb->update( $this->get_table(), $data, $where, $this->row_format( $data ), $this->row_format( $where ) );
 		}
 		else {
@@ -65,22 +65,22 @@ class Job {
 		}
 	}
 
-	public function delete( $options = array() ) {
+	public function delete( $options = [] ) {
 		global $wpdb;
 		$wpdb->show_errors();
 
-		$defaults = array(
+		$defaults = [
 			'delete_running' => false,
-		);
+		];
 		$options = wp_parse_args( $options, $defaults );
 
 		if ( $this->status === 'running' && ! $options['delete_running'] ) {
 			return new WP_Error( 'cavalcade.job.delete.still_running', __( 'Cannot delete running jobs', 'cavalcade' ) );
 		}
 
-		$where = array(
+		$where = [
 			'id' => $this->id,
-		);
+		];
 		$result = $wpdb->delete( $this->get_table(), $where, $this->row_format( $where ) );
 
 		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
@@ -122,7 +122,7 @@ class Job {
 	 * @return Job[]
 	 */
 	protected static function to_instances( $rows ) {
-		return array_map( array( get_called_class(), 'to_instance' ), $rows );
+		return array_map( [ get_called_class(), 'to_instance' ], $rows );
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Job {
 		}
 
 		if ( isset( $results ) && ! $results ) {
-			$statuses = array( 'waiting', 'running' );
+			$statuses = [ 'waiting', 'running' ];
 			if ( $include_completed ) {
 				$statuses[] = 'completed';
 			}
@@ -189,7 +189,7 @@ class Job {
 
 			$sql = "SELECT * FROM `{$table}` WHERE site = %d";
 			$sql .= " AND status IN(" . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ")";
-			$query = $wpdb->prepare( $sql, array_merge( array( $site ), $statuses ) );
+			$query = $wpdb->prepare( $sql, array_merge( [ $site ], $statuses ) );
 			$results = $wpdb->get_results( $query );
 
 			if ( ! $include_completed && ! $include_failed ) {
@@ -199,7 +199,7 @@ class Job {
 		}
 
 		if ( empty( $results ) ) {
-			return array();
+			return [];
 		}
 
 		return static::to_instances( $results );
@@ -212,7 +212,7 @@ class Job {
 	 * @return string Format specifier. Defaults to '%s'
 	 */
 	protected static function column_format( $column ) {
-		$columns = array(
+		$columns = [
 			'id'   => '%d',
 			'site' => '%d',
 			'hook' => '%s',
@@ -221,7 +221,7 @@ class Job {
 			'nextrun' => '%s',
 			'interval' => '%d',
 			'status' => '%s',
-		);
+		];
 
 		if ( isset( $columns[ $column ] ) ) {
 			return $columns[ $column ];
@@ -237,7 +237,7 @@ class Job {
 	 * @return array List of formats for fields in the row. Order matches the input order.
 	 */
 	protected static function row_format( $row ) {
-		$format = array();
+		$format = [];
 		foreach ( $row as $field => $value ) {
 			$format[] = static::column_format( $field );
 		}
