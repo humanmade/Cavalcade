@@ -2,6 +2,7 @@
 
 namespace HM\Cavalcade\Plugin\Connector;
 
+use HM\Cavalcade;
 use HM\Cavalcade\Job;
 
 /**
@@ -168,7 +169,7 @@ function get_cron_array( $value ) {
 
 	// Massage into the correct format
 	$crons = [];
-	$results = get_jobs();
+	$results = Cavalcade\get_jobs();
 	foreach ( $results as $result ) {
 		$timestamp = $result->nextrun;
 		$hook = $result->hook;
