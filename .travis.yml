@@ -1,0 +1,7 @@
+language: php
+php:
+  - '7.1'
+install:
+  - composer install
+script:
+  - vendor/bin/phpcs --standard=phpcs.ruleset.xml .
