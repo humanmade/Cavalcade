@@ -1,6 +1,6 @@
 Cavalcade - A better wp-cron
 
-Copyright 2014 Human Made and contributors
+Copyright 2014-2017 Human Made and contributors
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,17 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 This program incorporates work covered by the following copyright and
 permission notices:
 
-  WordPress MU Domain Mapping
-
-  Copyright Donncha O'Caoimh (donncha), Ron Rennick (wpmuguru), and contributors
-
-  WordPress MU Domain Mapping is released under the GPL
-
-and
-
   Cavalcade - A better wp-cron
 
-  Copyright 2015-2017 Human Made and contributors
+  Copyright 2014-2017 Human Made and contributors
 
   Cavalcade is released under the GPL
 
