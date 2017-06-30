@@ -51,23 +51,23 @@ class Command extends WP_CLI_Command {
 		$log_table = $wpdb->base_prefix . 'cavalcade_logs';
 		$job_table = $wpdb->base_prefix . 'cavalcade_jobs';
 
-		$assoc_args = wp_parse_args( $assoc_args, array(
+		$assoc_args = wp_parse_args( $assoc_args, [
 			'format'  => 'table',
 			'fields'  => 'job,hook,timestamp,status',
 			'hook'    => null,
 			'job'     => null,
-		));
+		]);
 
-		$where = array();
-		$data  = array();
+		$where = [];
+		$data  = [];
 
 		if ( $assoc_args['job'] ) {
-			$where[] = "job = %d";
+			$where[] = 'job = %d';
 			$data[]  = $assoc_args['job'];
 		}
 
 		if ( $assoc_args['hook'] ) {
-			$where[] = "hook = %s";
+			$where[] = 'hook = %s';
 			$data[] = $assoc_args['hook'];
 		}
 
@@ -93,7 +93,7 @@ class Command extends WP_CLI_Command {
 
 		global $wpdb;
 
-		$assoc_args = wp_parse_args( $assoc_args, array(
+		$assoc_args = wp_parse_args( $assoc_args, [
 			'format'  => 'table',
 			'fields'  => 'id,site,hook,start,nextrun,status',
 			'id'      => null,
@@ -102,36 +102,36 @@ class Command extends WP_CLI_Command {
 			'status'  => null,
 			'limit'   => 20,
 			'page'    => 1,
-		));
+		]);
 
-		$where = array();
-		$data  = array();
+		$where = [];
+		$data  = [];
 
 		if ( $assoc_args['id'] ) {
-			$where[] = "id = %d";
+			$where[] = 'id = %d';
 			$data[]  = $assoc_args['id'];
 		}
 
 		if ( $assoc_args['site'] ) {
-			$where[] = "site = %d";
+			$where[] = 'site = %d';
 			$data[]  = $assoc_args['site'];
 		}
 
 		if ( $assoc_args['hook'] ) {
-			$where[] = "hook = %s";
+			$where[] = 'hook = %s';
 			$data[] = $assoc_args['hook'];
 		}
 
 		if ( $assoc_args['status'] ) {
-			$where[] = "status = %s";
+			$where[] = 'status = %s';
 			$data[] = $assoc_args['status'];
 		}
 
 		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
 
-		$limit = "LIMIT %d";
+		$limit = 'LIMIT %d';
 		$data[] = absint( $assoc_args['limit'] );
-		$offset = "OFFSET %d";
+		$offset = 'OFFSET %d';
 		$data[] = absint( ( $assoc_args['page'] - 1 ) * $assoc_args['limit'] );
 
 		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where $limit $offset";
