@@ -2,8 +2,8 @@
 
 namespace HM\Cavalcade\Plugin\Connector;
 
-use HM\Cavalcade;
-use HM\Cavalcade\Job;
+use HM\Cavalcade\Plugin as Cavalcade;
+use HM\Cavalcade\Plugin\Job;
 
 /**
  * Register hooks for WordPress.
