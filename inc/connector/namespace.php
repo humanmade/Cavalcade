@@ -2,7 +2,8 @@
 
 namespace HM\Cavalcade\Plugin\Connector;
 
-use HM\Cavalcade\Job;
+use HM\Cavalcade\Plugin as Cavalcade;
+use HM\Cavalcade\Plugin\Job;
 
 /**
  * Register hooks for WordPress.
@@ -168,7 +169,7 @@ function get_cron_array( $value ) {
 
 	// Massage into the correct format
 	$crons = [];
-	$results = get_jobs();
+	$results = Cavalcade\get_jobs();
 	foreach ( $results as $result ) {
 		$timestamp = $result->nextrun;
 		$hook = $result->hook;
