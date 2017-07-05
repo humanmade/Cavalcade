@@ -30,7 +30,7 @@ function register_cli_commands() {
 	}
 
 	require __DIR__ . '/class-command.php';
-	WP_CLI::add_command( 'cavalcade', __NAMESPACE__ . '\\Command' );
+	\WP_CLI::add_command( 'cavalcade', __NAMESPACE__ . '\\Command' );
 }
 
 /**
