@@ -2,6 +2,8 @@
 
 namespace HM\Cavalcade\Plugin;
 
+use WP_CLI;
+
 /**
  * Bootstrap the plugin and get it started!
  */
