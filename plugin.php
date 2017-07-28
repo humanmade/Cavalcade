@@ -1,6 +1,12 @@
 <?php
 /**
- * Cavalcade!
+ * Plugin Name: Cavalcade
+ * Plugin URI: https://github.com/humanmade/Cavalcade
+ * Description: Scalable job system, designed as a drop-in replacement for wp_cron
+ * Version: 0.1
+ * Author: Human Made
+ * Author URI: https://hmn.md/
+ * License: GPLv2 or later
  */
 
 namespace HM\Cavalcade\Plugin;
