@@ -139,6 +139,14 @@ class Job {
 
 		$job = absint( $job );
 
+		$cached = wp_cache_get( 'jobs', 'cavalcade-jobs' );
+		if ( ! empty( $cached ) ) {
+			$filtered_jobs = wp_list_filter( $cached, array( 'id' => $job ) );
+			if ( $filtered_jobs ) {
+				return static::to_instance( $filtered_jobs[0] );
+			}
+		}
+
 		$suppress = $wpdb->suppress_errors();
 		$job = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . static::get_table() . ' WHERE id = %d', $job ) );
 		$wpdb->suppress_errors( $suppress );
