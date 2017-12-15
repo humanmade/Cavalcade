@@ -21,6 +21,8 @@ class Command extends WP_CLI_Command {
 		if ( empty( $job ) ) {
 			WP_CLI::error( 'Invalid job ID' );
 		}
+		// Make the current job id available for hooks run by this job
+		define( 'CAVALCADE_JOB_ID', $job->id );
 
 		// Handle SIGTERM calls as we don't want to kill a running job
 		pcntl_signal( SIGTERM, SIG_IGN );
