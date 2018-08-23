@@ -115,7 +115,7 @@ class Job {
 		$job->interval = $row->interval;
 		$job->status   = $row->status;
 
-		if ( isset( $row->schedule ) ) {
+		if ( ! empty( $row->schedule ) ) {
 			$job->schedule = $row->schedule;
 		}
 
