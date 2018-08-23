@@ -117,6 +117,8 @@ class Job {
 
 		if ( ! empty( $row->schedule ) ) {
 			$job->schedule = $row->schedule;
+		} else {
+			$job->schedule = '__fake_schedule';
 		}
 
 		return $job;
