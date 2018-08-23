@@ -18,6 +18,7 @@ const DATABASE_VERSION = 2;
 require __DIR__ . '/inc/namespace.php';
 require __DIR__ . '/inc/class-job.php';
 require __DIR__ . '/inc/connector/namespace.php';
+require __DIR__ . '/inc/upgrade/namespace.php';
 
 add_action( 'plugins_loaded',         __NAMESPACE__ . '\\bootstrap' );
 add_action( 'plugins_loaded',         __NAMESPACE__ . '\\register_cli_commands' );
