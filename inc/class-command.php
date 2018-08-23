@@ -161,6 +161,6 @@ class Command extends WP_CLI_Command {
 			return;
 		}
 
-		WP_CLI::error( 'Databse upgrade not required.' );
+		WP_CLI::success( 'Database upgrade not required.' );
 	}
 }
