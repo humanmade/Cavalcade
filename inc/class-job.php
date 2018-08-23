@@ -12,6 +12,7 @@ class Job {
 	public $start;
 	public $nextrun;
 	public $interval;
+	public $schedule;
 	public $status;
 
 	public function __construct( $id = null ) {
@@ -49,6 +50,9 @@ class Job {
 
 		if ( $this->is_recurring() ) {
 			$data['interval'] = $this->interval;
+			if ( get_database_version() >= 2 ) {
+				$data['schedule'] = $this->schedule;
+			}
 		}
 
 		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
@@ -110,6 +114,10 @@ class Job {
 		$job->nextrun  = mysql2date( 'G', $row->nextrun );
 		$job->interval = $row->interval;
 		$job->status   = $row->status;
+
+		if ( isset( $row->schedule ) ) {
+			$job->schedule = $row->schedule;
+		}
 
 		return $job;
 	}
@@ -218,6 +226,7 @@ class Job {
 			'start' => '%s',
 			'nextrun' => '%s',
 			'interval' => '%d',
+			'schedule' => '%s',
 			'status' => '%s',
 		];
 
