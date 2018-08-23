@@ -115,6 +115,28 @@ function get_jobs( $site = null ) {
 }
 
 /**
+ * Get the WP Cron schedule names by interval.
+ *
+ * This is used as a fallback when Cavalcade does not have the
+ * schedule name stored in the database to make a best guest as
+ * the schedules name.
+ *
+ * Interval collisions caused by two plugins registering the same
+ * interval with different names are unified into a single name.
+ *
+ * @return array Cron Schedules indexed by interval.
+ */
+function get_schedules_by_interval() {
+	$schedules = [];
+
+	foreach ( wp_get_schedules() as $name => $schedule ) {
+		$schedules[ (int) $schedule['interval'] ] = $name;
+	}
+
+	return $schedules;
+}
+
+/**
  * Get the current Cavalcade database schema version.
  *
  * @return int Database schema version.
