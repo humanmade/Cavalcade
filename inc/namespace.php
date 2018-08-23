@@ -72,6 +72,7 @@ function create_tables() {
 		`start` datetime NOT NULL,
 		`nextrun` datetime NOT NULL,
 		`interval` int unsigned DEFAULT NULL,
+		`schedule` varchar(255) DEFAULT NULL,
 		`status` varchar(255) NOT NULL DEFAULT 'waiting',
 
 		PRIMARY KEY (`id`),
@@ -93,6 +94,8 @@ function create_tables() {
 	) ENGINE=InnoDB;\n";
 
 	$wpdb->query( $query );
+
+	update_option( 'cavalcade_db_version', DATABASE_VERSION );
 }
 
 /**
