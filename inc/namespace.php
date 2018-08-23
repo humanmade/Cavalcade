@@ -95,7 +95,7 @@ function create_tables() {
 
 	$wpdb->query( $query );
 
-	update_option( 'cavalcade_db_version', DATABASE_VERSION );
+	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
 }
 
 /**
