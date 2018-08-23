@@ -157,10 +157,10 @@ class Command extends WP_CLI_Command {
 	 */
 	public function upgrade( ) {
 		if ( Upgrade\upgrade_database() ) {
-			\WP_CLI::success( 'Database version upgraded.' );
+			WP_CLI::success( 'Database version upgraded.' );
 			return;
 		}
 
-		\WP_CLI::error( 'Databse upgrade not required.' );
+		WP_CLI::error( 'Databse upgrade not required.' );
 	}
 }
