@@ -59,6 +59,10 @@ function schedule_recurring_event( $event ) {
 	$job->interval = $event->interval;
 	$job->args = $event->args;
 
+	if ( Cavalcade\get_database_version() >= 2 ) {
+		$job->schedule = $event->schedule;
+	}
+
 	$job->save();
 }
 
@@ -182,6 +186,10 @@ function get_cron_array( $value ) {
 
 		if ( isset( $result->interval ) ) {
 			$value['interval'] = $result->interval;
+
+			if ( Cavalcade\get_database_version() >= 2 && ! empty( $result->schedule ) ) {
+				$value['schedule'] = $result->schedule;
+			}
 		}
 
 		// Build the array up, urgh
