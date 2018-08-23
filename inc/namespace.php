@@ -113,3 +113,19 @@ function get_jobs( $site = null ) {
 
 	return Job::get_by_site( $site );
 }
+
+/**
+ * Get the current Cavalcade database schema version.
+ *
+ * @return int Database schema version.
+ */
+function get_database_version() {
+	$version = (int) get_site_option( 'cavalcade_db_version' );
+
+	// Normalise schema version for unset option.
+	if ( $version < 2 ) {
+		$version = 1;
+	}
+
+	return $version;
+}
