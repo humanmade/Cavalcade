@@ -2,6 +2,7 @@
 
 namespace HM\Cavalcade\Plugin\Upgrade;
 
+use HM\Cavalcade\Plugin as Cavalcade;
 use const HM\Cavalcade\Plugin\DATABASE_VERSION;
 
 /**
@@ -26,6 +27,8 @@ function upgrade_database() {
 
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
 
+	wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+
 	// Upgrade successful.
 	return true;
 }
@@ -33,7 +36,7 @@ function upgrade_database() {
 /**
  * Upgrade Cavalcade database tables to version 2.
  *
- * Add the `schedule` column to the jobs table.
+ * Add and populate the `schedule` column in the jobs table.
  */
 function upgrade_database_2() {
 	global $wpdb;
@@ -43,4 +46,17 @@ function upgrade_database_2() {
 			  AFTER `interval`";
 
 	$wpdb->query( $query );
+
+	$schedules = Cavalcade\get_schedules_by_interval();
+
+	foreach ($schedules as $interval => $name ) {
+		$query = "UPDATE `{$wpdb->base_prefix}cavalcade_jobs`
+				  SET `schedule` = %s
+				  WHERE `interval` = %d
+				  AND `status` NOT IN ( 'failed', 'completed' )";
+
+		$wpdb->query(
+			$wpdb->prepare( $query, $name, $interval )
+		);
+	}
 }
