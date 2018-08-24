@@ -49,7 +49,7 @@ function upgrade_database_2() {
 
 	$schedules = Cavalcade\get_schedules_by_interval();
 
-	foreach ($schedules as $interval => $name ) {
+	foreach ( $schedules as $interval => $name ) {
 		$query = "UPDATE `{$wpdb->base_prefix}cavalcade_jobs`
 				  SET `schedule` = %s
 				  WHERE `interval` = %d
