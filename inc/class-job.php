@@ -118,7 +118,7 @@ class Job {
 		if ( ! empty( $row->schedule ) ) {
 			$job->schedule = $row->schedule;
 		} else {
-			$job->schedule = '__fake_schedule';
+			$job->schedule = get_schedule_by_interval( $row->interval );
 		}
 
 		return $job;
