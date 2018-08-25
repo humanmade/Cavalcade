@@ -179,17 +179,13 @@ function get_cron_array( $value ) {
 		$hook = $result->hook;
 		$key = md5( serialize( $result->args ) );
 		$value = [
-			'schedule' => '__fake_schedule',
+			'schedule' => $result->schedule,
 			'args'     => $result->args,
 			'_job'     => $result,
 		];
 
 		if ( isset( $result->interval ) ) {
 			$value['interval'] = $result->interval;
-
-			if ( Cavalcade\get_database_version() >= 2 && ! empty( $result->schedule ) ) {
-				$value['schedule'] = $result->schedule;
-			}
 		}
 
 		// Build the array up, urgh
