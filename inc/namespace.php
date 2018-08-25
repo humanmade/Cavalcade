@@ -137,6 +137,26 @@ function get_schedules_by_interval() {
 }
 
 /**
+ * Helper function to get a schedule name from a specific interval.
+ *
+ * @param int $interval Cron schedule interval.
+ * @return string Cron schedule name.
+ */
+function get_schedule_by_interval( $interval = null ) {
+	if ( empty( $interval ) ) {
+		return '__fake_schedule';
+	}
+
+	$schedules = get_schedules_by_interval();
+
+	if ( ! empty ( $schedules[ (int) $interval ] ) ) {
+		return $schedules[ (int) $interval ];
+	}
+
+	return '__fake_schedule';
+}
+
+/**
  * Get the current Cavalcade database schema version.
  *
  * @return int Database schema version.
