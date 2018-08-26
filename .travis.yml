@@ -7,3 +7,5 @@ install:
 script:
   - phpunit
   - vendor/bin/phpcs --standard=phpcs.ruleset.xml .
+notifications:
+    email: false
