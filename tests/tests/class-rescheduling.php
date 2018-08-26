@@ -23,13 +23,14 @@ class Tests_Core extends WP_UnitTestCase {
 
 	function test_recheduling() {
 		$timestamp = time() + HOUR_IN_SECONDS;
+		$key = md5( serialize( [] ) );
 
 		wp_schedule_event( $timestamp, 'hourly', 'cavalcade_repeat' );
 		wp_schedule_event( $timestamp, 'daily', 'cavalcade_repeat' );
 
 		$next_scheduled = _get_cron_array()[ wp_next_scheduled( 'cavalcade_repeat' ) ];
 		$expected = wp_get_schedules()['daily']['interval'];
-		$actual = $next_scheduled['interval'];
+		$actual = $next_scheduled['cavalcade_repeat'][ $key ]['interval'];
 
 		$this->assertEquals( $expected, $actual );
 	}
