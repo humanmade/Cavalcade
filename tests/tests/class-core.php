@@ -1,6 +1,8 @@
 <?php
 namespace HM\Cavalcade\Tests;
 
+use WP_UnitTestCase;
+
 /**
  * Duplicate the WordPress Core tests
  *
