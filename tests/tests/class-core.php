@@ -155,7 +155,7 @@ class Tests_Core extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 10468
+	 * @ticket WordPress Core 10468
 	 */
 	function test_clear_schedule_new_args() {
 		$hook = __FUNCTION__;
@@ -193,7 +193,7 @@ class Tests_Core extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 18997
+	 * @ticket WordPress Core 18997
 	 */
 	function test_unschedule_hook() {
 		$hook = __FUNCTION__;
@@ -215,7 +215,7 @@ class Tests_Core extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 6966
+	 * @ticket WordPress Core 6966
 	 */
 	function test_duplicate_event() {
 		// duplicate events close together should be skipped
@@ -234,7 +234,7 @@ class Tests_Core extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 6966
+	 * @ticket WordPress Core 6966
 	 */
 	function test_not_duplicate_event() {
 		// duplicate events far apart should work normally
