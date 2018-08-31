@@ -42,8 +42,7 @@ function upgrade_database_2() {
 	global $wpdb;
 
 	$query = "ALTER TABLE `{$wpdb->base_prefix}cavalcade_jobs`
-			  ADD `schedule` varchar(255) DEFAULT NULL
-			  AFTER `interval`";
+			  ADD `schedule` varchar(255) DEFAULT NULL";
 
 	$wpdb->query( $query );
 
