@@ -17,3 +17,8 @@ when they're ready.
 
 The runner spawns workers, which perform the actual tasks themselves. This is
 done by running a special WP-CLI command.
+
+* [Motivation](motivation.md) - Why Cavalcade?
+* [Installation](install.md)
+* [Example Use Cases](examples.md)
+* [Plugins](plugins.md) - Extending the functionality of Cavalcade
