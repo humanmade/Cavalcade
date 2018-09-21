@@ -1,8 +1,4 @@
----
-title: Cavalcade Plugins
-menu_title: Plugins
-project: cavalcade
----
+# Plugins
 
 Cavalcade is fully extensible. For additional functionality for the plugin side of Cavalcade, you can use the existing hooks and system in WordPress.
 

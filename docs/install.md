@@ -1,8 +1,4 @@
----
-title: Installing Cavalcade
-menu_title: Installation
-project: cavalcade
----
+# Installing Cavalcade
 
 Cavalcade requires a little bit of setup, and is not recommended for the faint
 of heart. Keep in mind that it is an incredibly powerful system designed for
@@ -18,8 +14,7 @@ Clone or submodule this repository into your `mu-plugins` directory, and load it
 as an MU plugin. For example, create `mu-plugins/cavalcade.php` with the
 following code:
 
-```
-<?php
+```php
 require_once __DIR__ . '/cavalcade/plugin.php';
 ```
 
@@ -32,7 +27,7 @@ such as update checks.
 
 You'll also want to disable the built in WordPress cron in `wp-config.php`:
 
-```
+```php
 define( 'DISABLE_WP_CRON', true );
 ```
 
@@ -50,7 +45,9 @@ The runner will remain in the foreground by itself; use your normal system
 daemonisation tools, or `nohup` with `&` to run it in the background.
 We recommend:
 
-	nohup bin/cavalcade > /var/log/cavalcade.log &
+```sh
+nohup bin/cavalcade > /var/log/cavalcade.log &
+```
 
 (Cavalcade outputs all relevant logging information to stdout, and only sends
 meta-information such as shutdown notices to stderr.)

@@ -1,8 +1,4 @@
----
-title: Why Cavalcade?
-menu_title: Motivation
-project: cavalcade
----
+# Why Cavalcade?
 
 We created Cavalcade to serve our needs, as none of the existing options for scheduled tasks in WordPress was a good fit. Here's why.
 
