@@ -151,4 +151,16 @@ class Command extends WP_CLI_Command {
 		}
 
 	}
+
+	/**
+	 * Upgrade to the latest database schema.
+	 */
+	public function upgrade() {
+		if ( Upgrade\upgrade_database() ) {
+			WP_CLI::success( 'Database version upgraded.' );
+			return;
+		}
+
+		WP_CLI::success( 'Database upgrade not required.' );
+	}
 }

@@ -59,6 +59,10 @@ function schedule_recurring_event( $event ) {
 	$job->interval = $event->interval;
 	$job->args = $event->args;
 
+	if ( Cavalcade\get_database_version() >= 2 ) {
+		$job->schedule = $event->schedule;
+	}
+
 	$job->save();
 }
 
@@ -175,7 +179,7 @@ function get_cron_array( $value ) {
 		$hook = $result->hook;
 		$key = md5( serialize( $result->args ) );
 		$value = [
-			'schedule' => '__fake_schedule',
+			'schedule' => $result->schedule,
 			'args'     => $result->args,
 			'_job'     => $result,
 		];
