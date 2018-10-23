@@ -94,7 +94,13 @@ function update_cron_array( $value, $old_value ) {
 						$hook = 'wp_batch_split_terms';
 					}
 
-					$real_key = sha1( $timestamp . $hook . $key );
+					$real_key = $timestamp . $hook . $key;
+
+					if ( isset( $item['interval'] ) ) {
+						$real_key .= (string) $item['interval'];
+					}
+
+					$real_key = sha1( $real_key );
 					$new[ $real_key ] = [
 						'timestamp' => $timestamp,
 						'hook' => $hook,
