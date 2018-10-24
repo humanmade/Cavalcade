@@ -89,23 +89,44 @@ class Command extends WP_CLI_Command {
 	 *
 	 * @synopsis [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>] [--limit=<limit>] [--page=<page>]
 	 */
-	public function jobs( $args, $assoc_args  ) {
+	public function jobs( $args, $assoc_args ) {
 
 		global $wpdb;
 
-		$assoc_args = wp_parse_args( $assoc_args, [
-			'format'  => 'table',
-			'fields'  => 'id,site,hook,start,nextrun,status',
-			'id'      => null,
-			'site'    => null,
-			'hook'    => null,
-			'status'  => null,
-			'limit'   => 20,
-			'page'    => 1,
-		]);
+		$assoc_args = wp_parse_args(
+			$assoc_args,
+			[
+				'format'  => 'table',
+				'fields'  => 'id,site,hook,start,nextrun,status',
+				'id'      => null,
+				'site'    => null,
+				'hook'    => null,
+				'status'  => null,
+				'limit'   => 20,
+				'page'    => 1,
+				'order'   => null,
+				'orderby' => null,
+			]
+		);
 
-		$where = [];
-		$data  = [];
+		$where    = [];
+		$data     = [];
+		$_order   = [
+			'ASC',
+			'DESC',
+		];
+		$_orderby = [
+			'id',
+			'site',
+			'hook',
+			'args',
+			'start',
+			'nextrun',
+			'interval',
+			'status',
+		];
+		$order    = 'DESC';
+		$orderby  = 'timestamp';
 
 		if ( $assoc_args['id'] ) {
 			$where[] = 'id = %d';
@@ -119,12 +140,20 @@ class Command extends WP_CLI_Command {
 
 		if ( $assoc_args['hook'] ) {
 			$where[] = 'hook = %s';
-			$data[] = $assoc_args['hook'];
+			$data[]  = $assoc_args['hook'];
 		}
 
 		if ( $assoc_args['status'] ) {
 			$where[] = 'status = %s';
-			$data[] = $assoc_args['status'];
+			$data[]  = $assoc_args['status'];
+		}
+
+		if ( $assoc_args['order'] && in_array( $assoc_args['order'], $_order ) ) {
+			$order = $assoc_args['order'];
+		}
+
+		if ( $assoc_args['orderby'] && in_array( strtoupper( $assoc_args['orderby'] ), $_orderby ) ) {
+			$orderby = strtoupper( $assoc_args['orderby'] );
 		}
 
 		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
@@ -134,7 +163,7 @@ class Command extends WP_CLI_Command {
 		$offset = 'OFFSET %d';
 		$data[] = absint( ( $assoc_args['page'] - 1 ) * $assoc_args['limit'] );
 
-		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where $limit $offset";
+		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where $orderby $order $limit $offset";
 
 		if ( $data ) {
 			$query = $wpdb->prepare( $query, $data );
