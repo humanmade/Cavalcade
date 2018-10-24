@@ -59,6 +59,10 @@ function schedule_recurring_event( $event ) {
 	$job->interval = $event->interval;
 	$job->args = $event->args;
 
+	if ( Cavalcade\get_database_version() >= 2 ) {
+		$job->schedule = $event->schedule;
+	}
+
 	$job->save();
 }
 
@@ -90,7 +94,13 @@ function update_cron_array( $value, $old_value ) {
 						$hook = 'wp_batch_split_terms';
 					}
 
-					$real_key = sha1( $timestamp . $hook . $key );
+					$real_key = $timestamp . $hook . $key;
+
+					if ( isset( $item['interval'] ) ) {
+						$real_key .= (string) $item['interval'];
+					}
+
+					$real_key = sha1( $real_key );
 					$new[ $real_key ] = [
 						'timestamp' => $timestamp,
 						'hook' => $hook,
@@ -175,7 +185,7 @@ function get_cron_array( $value ) {
 		$hook = $result->hook;
 		$key = md5( serialize( $result->args ) );
 		$value = [
-			'schedule' => '__fake_schedule',
+			'schedule' => $result->schedule,
 			'args'     => $result->args,
 			'_job'     => $result,
 		];
