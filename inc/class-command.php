@@ -87,7 +87,7 @@ class Command extends WP_CLI_Command {
 	/**
 	 * Show jobs.
 	 *
-	 * @synopsis [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>] [--limit=<limit>] [--page=<page>]
+	 * @synopsis [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>] [--limit=<limit>] [--page=<page>] [--order=<order>] [--orderby=<orderby>]
 	 */
 	public function jobs( $args, $assoc_args ) {
 
@@ -148,22 +148,22 @@ class Command extends WP_CLI_Command {
 			$data[]  = $assoc_args['status'];
 		}
 
-		if ( $assoc_args['order'] && in_array( $assoc_args['order'], $_order ) ) {
-			$order = $assoc_args['order'];
+		if ( $assoc_args['order'] && in_array( strtoupper( $assoc_args['order'] ), $_order, true ) ) {
+			$order = strtoupper( $assoc_args['order'] );
 		}
 
-		if ( $assoc_args['orderby'] && in_array( strtoupper( $assoc_args['orderby'] ), $_orderby ) ) {
-			$orderby = strtoupper( $assoc_args['orderby'] );
+		if ( $assoc_args['orderby'] && in_array( $assoc_args['orderby'], $_orderby, true ) ) {
+			$orderby = $assoc_args['orderby'];
 		}
 
 		$where = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
 
-		$limit = 'LIMIT %d';
+		$limit  = 'LIMIT %d';
 		$data[] = absint( $assoc_args['limit'] );
 		$offset = 'OFFSET %d';
 		$data[] = absint( ( $assoc_args['page'] - 1 ) * $assoc_args['limit'] );
 
-		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where $orderby $order $limit $offset";
+		$query = "SELECT * FROM {$wpdb->base_prefix}cavalcade_jobs $where ORDER BY $orderby $order $limit $offset";
 
 		if ( $data ) {
 			$query = $wpdb->prepare( $query, $data );
