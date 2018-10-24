@@ -126,7 +126,7 @@ class Command extends WP_CLI_Command {
 			'status',
 		];
 		$order    = 'DESC';
-		$orderby  = 'timestamp';
+		$orderby  = 'id';
 
 		if ( $assoc_args['id'] ) {
 			$where[] = 'id = %d';
