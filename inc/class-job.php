@@ -115,7 +115,10 @@ class Job {
 		$job->interval = $row->interval;
 		$job->status   = $row->status;
 
-		if ( ! empty( $row->schedule ) ) {
+		if ( ! $row->interval ) {
+			// One off event.
+			$job->schedule = false;
+		} elseif ( ! empty( $row->schedule ) ) {
 			$job->schedule = $row->schedule;
 		} else {
 			$job->schedule = get_schedule_by_interval( $row->interval );
