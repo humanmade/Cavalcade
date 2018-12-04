@@ -204,6 +204,8 @@ function get_cron_array( $value ) {
 		$crons[ $timestamp ][ $hook ][ $key ] = $value;
 	}
 
+	ksort( $crons, SORT_NUMERIC );
+
 	// Set the version too
 	$crons['version'] = 2;
 

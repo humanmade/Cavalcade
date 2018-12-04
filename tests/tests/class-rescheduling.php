@@ -8,7 +8,7 @@ use WP_UnitTestCase;
  *
  * @ticket 64
  */
-class Tests_Core extends WP_UnitTestCase {
+class Tests_Rescheduling extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 		// make sure the schedule is clear
