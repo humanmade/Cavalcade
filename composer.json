@@ -14,6 +14,7 @@
 		"composer/installers": "~1.0"
 	},
 	"require-dev": {
-		"humanmade/coding-standards": "dev-master"
+		"humanmade/coding-standards": "dev-master",
+		"phpunit/phpunit": "^7.5"
 	}
 }
