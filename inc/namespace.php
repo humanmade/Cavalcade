@@ -10,9 +10,12 @@ use WP_CLI;
 function bootstrap() {
 	register_cache_groups();
 
-	if ( ! is_installed() ) {
-		create_tables();
+	if ( ! is_installed() && ! create_tables() ) {
+		return;
 	}
+
+	register_cli_commands();
+	Connector\bootstrap();
 }
 
 /**
@@ -61,6 +64,11 @@ function is_installed() {
 }
 
 function create_tables() {
+	if ( ! is_blog_installed() ) {
+		// Do not create tables before blog is is installed.
+		return false;
+	}
+
 	global $wpdb;
 	$query = "CREATE TABLE IF NOT EXISTS `{$wpdb->base_prefix}cavalcade_jobs` (
 		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -95,7 +103,9 @@ function create_tables() {
 
 	$wpdb->query( $query );
 
+	wp_cache_set( 'installed', true, 'cavalcade' );
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
+	return true;
 }
 
 /**
