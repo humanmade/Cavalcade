@@ -16,6 +16,7 @@ function bootstrap() {
 	}
 
 	register_cli_commands();
+	maybe_populate_site_option();
 	Connector\bootstrap();
 }
 
@@ -118,6 +119,28 @@ function create_tables() {
 		return $site_meta;
 	} );
 	return true;
+}
+
+/**
+ * Populate the Cavalcade db version when upgrading to multisite.
+ *
+ * This ensures the database option is copied from the options table
+ * accross to the sitemeta table when WordPress is manually upgraded from
+ * a single site install to a multisite install.
+ */
+function maybe_populate_site_option() {
+	if ( is_multisite() || ! defined( 'WP_ALLOW_MULTISITE') || ! WP_ALLOW_MULTISITE ) {
+		return;
+	}
+
+	$cavalcade_db_version = get_option( 'cavalcade_db_version' );
+
+	$set_site_meta = function( $site_meta ) use ( $cavalcade_db_version ) {
+		$site_meta['cavalcade_db_version'] = $cavalcade_db_version;
+		return $site_meta;
+	};
+
+	add_filter( 'populate_network_meta', $set_site_meta );
 }
 
 /**
