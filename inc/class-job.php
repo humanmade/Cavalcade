@@ -66,6 +66,8 @@ class Job {
 			$result = $wpdb->insert( $this->get_table(), $data, $this->row_format( $data ) );
 			$this->id = $wpdb->insert_id;
 		}
+
+		wp_cache_set( "job::{$this->id}", $this, 'cavalcade-jobs' );
 	}
 
 	public function delete( $options = [] ) {
@@ -87,6 +89,7 @@ class Job {
 		$result = $wpdb->delete( $this->get_table(), $where, $this->row_format( $where ) );
 
 		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+		wp_cache_delete( "job::{$this->id}", 'cavalcade-jobs' );
 
 		return (bool) $result;
 
@@ -124,6 +127,7 @@ class Job {
 			$job->schedule = get_schedule_by_interval( $row->interval );
 		}
 
+		wp_cache_set( "job::{$job->id}", $job, 'cavalcade-jobs' );
 		return $job;
 	}
 
@@ -151,6 +155,11 @@ class Job {
 		}
 
 		$job = absint( $job );
+
+		$cached_job = wp_cache_get( "job::{$this->id}", 'cavalcade-jobs' );
+		if ( $cached_job ) {
+			return $cached_job;
+		}
 
 		$suppress = $wpdb->suppress_errors();
 		$job = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . static::get_table() . ' WHERE id = %d', $job ) );
