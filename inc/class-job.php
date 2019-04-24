@@ -178,9 +178,10 @@ class Job {
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
 	 * @param bool $include_completed Should we include completed jobs?
 	 * @param bool $include_failed Should we include failed jobs?
+	 * @param bool $exclude_future Should we exclude future (not ready) jobs?
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
 	 */
-	public static function get_by_site( $site, $include_completed = false, $include_failed = false ) {
+	public static function get_by_site( $site, $include_completed = false, $include_failed = false, $exclude_future = false ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -192,11 +193,12 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
-		if ( ! $include_completed && ! $include_failed ) {
+		$results = [];
+		if ( ! $include_completed && ! $include_failed && ! $exclude_future ) {
 			$results = wp_cache_get( 'jobs', 'cavalcade-jobs' );
 		}
 
-		if ( isset( $results ) && ! $results ) {
+		if ( empty( $results ) ) {
 			$statuses = [ 'waiting', 'running' ];
 			if ( $include_completed ) {
 				$statuses[] = 'completed';
@@ -210,10 +212,14 @@ class Job {
 
 			$sql = "SELECT * FROM `{$table}` WHERE site = %d";
 			$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ')';
+			if ( $exclude_future ) {
+				$sql .= ' AND nextrun < NOW()';
+			}
+
 			$query = $wpdb->prepare( $sql, array_merge( [ $site ], $statuses ) );
 			$results = $wpdb->get_results( $query );
 
-			if ( ! $include_completed && ! $include_failed ) {
+			if ( ! $include_completed && ! $include_failed && ! $exclude_future ) {
 				wp_cache_set( 'jobs', $results, 'cavalcade-jobs' );
 			}
 		}
