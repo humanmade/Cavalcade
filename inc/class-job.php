@@ -241,8 +241,6 @@ class Job {
 	 *     @param string      $hook      Jobs hook to return. Required.
 	 *     @param int|null    $timestamp Timestamp to search for. Optional. Next event by default.
 	 *     @param array       $args      Cron job arguments.
-	 *     @param string|null $schedule  Name of event's schedule. Null for single event.
-	 *     @param int|null    $interval  Frequency event runs at.
 	 *     @param int|object  $site      Site to query. Default current site.
 	 *     @param array       $statuses  Job statuses to query.
 	 *     @param int         $limit     Max number of jobs to return. Default 1.
@@ -257,8 +255,6 @@ class Job {
 		$defaults = [
 			'timestamp' => null,
 			'args' => [],
-			'schedule' => null,
-			'interval' => null,
 			'site' => get_current_blog_id(),
 			'statuses' => [ 'waiting' ],
 			'limit' => 1,
@@ -312,22 +308,6 @@ class Job {
 		} else {
 			$sql .= ' AND nextrun = %s';
 			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $args->timestamp ) );
-		}
-
-		if ( empty( $args['schedule'] && empty( $args['interval'] ) ) ) {
-			// It's a single job.
-			$sql .= ' AND interval = NULL';
-		} elseif ( ! empty( $args['schedule'] ) && get_database_version() >= 2 ) {
-			// Search by schedule string.
-			$sql .= ' AND schedule = %s';
-			$sql_params[] = $args['schedule'];
-		} elseif ( ! empty( $args['interval'] ) ) {
-			$sql .= ' AND interval = %d';
-			$sql_params[] = $args['interval'];
-		} else {
-			// Convert schedule to an interval.
-			$sql .= ' AND interval = %d';
-			$sql_params[] = wp_get_schedules()[ $args['schedule'] ]['interval'];
 		}
 
 		$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $args['statuses'] ), '%s' ) ) . ')';
