@@ -156,7 +156,7 @@ class Job {
 
 		$job = absint( $job );
 
-		$cached_job = wp_cache_get( "job::{$this->id}", 'cavalcade-jobs' );
+		$cached_job = wp_cache_get( "job::{$job}", 'cavalcade-jobs' );
 		if ( $cached_job ) {
 			return $cached_job;
 		}
