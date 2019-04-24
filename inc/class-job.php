@@ -242,7 +242,7 @@ class Job {
 	 *     @param int|null    $timestamp Timestamp to search for. Optional. Next event by default.
 	 *     @param array       $args      Cron job arguments.
 	 *     @param int|object  $site      Site to query. Default current site.
-	 *     @param array       $statuses  Job statuses to query.
+	 *     @param array       $statuses  Job statuses to query. Default to waiting and running.
 	 *     @param int         $limit     Max number of jobs to return. Default 1.
 	 * }
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
@@ -256,7 +256,7 @@ class Job {
 			'timestamp' => null,
 			'args' => [],
 			'site' => get_current_blog_id(),
-			'statuses' => [ 'waiting' ],
+			'statuses' => [ 'waiting', 'running' ],
 			'limit' => 1,
 		];
 
