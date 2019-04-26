@@ -262,6 +262,7 @@ class Job {
 			'statuses' => [ 'waiting', 'running' ],
 			'limit' => 1,
 			'order' => 'ASC',
+			'__raw' => false,
 		];
 
 		$args = wp_parse_args( $args, $defaults );
@@ -349,6 +350,9 @@ class Job {
 		$query = $wpdb->prepare( $sql, $sql_params );
 		$results = $wpdb->get_results( $query );
 
+		if ( $args['__raw'] === true ) {
+			return $results;
+		}
 		return static::to_instances( $results );
 	}
 
