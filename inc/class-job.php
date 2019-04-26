@@ -207,20 +207,17 @@ class Job {
 				$statuses[] = 'failed';
 			}
 
-			// Find all scheduled events for this site
-			$table = static::get_table();
-
-			$sql = "SELECT * FROM `{$table}` WHERE site = %d";
-			$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ')';
-			if ( $exclude_future ) {
-				$sql .= ' AND nextrun < NOW()';
-			}
-
-			$query = $wpdb->prepare( $sql, array_merge( [ $site ], $statuses ) );
-			$results = $wpdb->get_results( $query );
+			$results = static::get_jobs_by_query(
+				[
+					'site' => $site,
+					'args' => null,
+					'statuses' => $statuses,
+					'__raw' => true,
+				]
+			);
 
 			if ( ! $include_completed && ! $include_failed && ! $exclude_future ) {
-				wp_cache_set( 'jobs', $results, 'cavalcade-jobs' );
+				wp_cache_set( 'jobs', (array) $results, 'cavalcade-jobs' );
 			}
 		}
 
