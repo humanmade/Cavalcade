@@ -11,6 +11,83 @@ use HM\Cavalcade\Plugin\Job;
 function bootstrap() {
 	add_filter( 'pre_update_option_cron', __NAMESPACE__ . '\\update_cron_array', 10, 2 );
 	add_filter( 'pre_option_cron',        __NAMESPACE__ . '\\get_cron_array' );
+
+	// Filters introduced in WP 5.1.
+	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 2 );
+}
+
+/**
+ * Schedule an event with Cavalcade.
+ *
+ * @param null|bool $pre   Value to return instead. Default null to continue adding the event.
+ * @param stdClass  $event {
+ *     An object containing an event's data.
+ *
+ *     @type string       $hook      Action hook to execute when the event is run.
+ *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
+ *     @type string|false $schedule  How often the event should subsequently recur.
+ *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
+ *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+ * }
+ * @return null|bool True if event successfully scheduled. False for failure.
+ */
+function pre_schedule_event( $pre, $event ) {
+
+	if ( ! isset( $event->interval ) ) {
+		return pre_schedule_single_event();
+	}
+
+	// First check if the job exists already.
+	$job = Job::get_jobs_by_query(
+		[
+			'hook' => $event->hook,
+			'timestamp' => $event->timestamp,
+			'args' => $event->args,
+		]
+	);
+
+	if ( empty( $job[0] ) ) {
+		// The job does not exist.
+		schedule_event( $event );
+
+		return true;
+	}
+
+	// The job exists.
+	$existing = $job[0];
+	if (
+		(
+			Cavalcade\get_database_version() >= 2 &&
+			$existing->schedule === $event->schedule
+		) &&
+		$existing->interval === null &&
+		! isset( $event->interval )
+	) {
+		// Unchanged single event.
+		return false;
+	} elseif (
+		(
+			Cavalcade\get_database_version() >= 2 &&
+			$existing->schedule === $event->schedule
+		) &&
+		$existing->interval === $event->interval
+	) {
+		// Unchanged recurring event.
+		return false;
+	} else {
+		// Event has changed. Update it.
+		if ( Cavalcade\get_database_version() >= 2 ) {
+			$existing->schedule = $event->schedule;
+		}
+		if ( isset( $event->interval ) ) {
+			$existing->interval = $event->interval;
+		} else {
+			$existing->interval = null;
+		}
+		$existing->save();
+		return true;
+	}
+
 }
 
 /**
