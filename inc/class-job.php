@@ -240,7 +240,7 @@ class Job {
 	 * @param array|\stdClass $args {
 	 *     @param string          $hook      Jobs hook to return. Optional.
 	 *     @param int|string|null $timestamp Timestamp to search for. Optional.
-	 *                                       String shortcuts `future`: >= NOW(); `past`: < NOW()
+	 *                                       String shortcuts `future`: > NOW(); `past`: <= NOW()
 	 *     @param array           $args      Cron job arguments.
 	 *     @param int|object      $site      Site to query. Default current site.
 	 *     @param array           $statuses  Job statuses to query. Default to waiting and running.
@@ -290,10 +290,10 @@ class Job {
 
 		if ( $args['timestamp'] === 'future' ) {
 			$timestamp = time();
-			$timestamp_compare = '>=';
+			$timestamp_compare = '>';
 		} elseif ( $args['timestamp'] === 'past' ) {
 			$timestamp = time();
-			$timestamp_compare = '<';
+			$timestamp_compare = '<=';
 		}
 
 		$args['limit' ] = absint( $args['limit' ] );
