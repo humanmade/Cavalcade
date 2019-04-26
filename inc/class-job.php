@@ -218,7 +218,7 @@ class Job {
 			);
 
 			if ( ! $include_completed && ! $include_failed && ! $exclude_future ) {
-				wp_cache_set( 'jobs', (array) $results, 'cavalcade-jobs' );
+				wp_cache_set( 'jobs', $results, 'cavalcade-jobs' );
 			}
 		}
 
