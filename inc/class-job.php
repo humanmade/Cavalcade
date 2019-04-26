@@ -238,7 +238,7 @@ class Job {
 	 * on the paramaters.
 	 *
 	 * @param array|\stdClass $args {
-	 *     @param string          $hook      Jobs hook to return. Required.
+	 *     @param string          $hook      Jobs hook to return. Optional.
 	 *     @param int|string|null $timestamp Timestamp to search for. Optional.
 	 *                                       String shortcuts `future`: >= NOW(); `past`: < NOW()
 	 *     @param array           $args      Cron job arguments.
@@ -256,6 +256,7 @@ class Job {
 
 		$defaults = [
 			'timestamp' => null,
+			'hook' => null,
 			'args' => [],
 			'site' => get_current_blog_id(),
 			'statuses' => [ 'waiting', 'running' ],
@@ -274,7 +275,7 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
-		if ( empty( $args['hook'] ) ) {
+		if ( ! empty( $args['hook'] ) && ! is_string( $args['hook'] ) ) {
 			return new WP_Error( 'cavalcade.job.invalid_hook_name' );
 		}
 
@@ -306,8 +307,10 @@ class Job {
 		$sql = "SELECT * FROM `{$table}` WHERE site = %d";
 		$sql_params[] = $args['site'];
 
-		$sql .= ' AND hook = %s';
-		$sql_params[] = $args['hook'];
+		if ( is_string( $args['hook'] ) ) {
+			$sql .= ' AND hook = %s';
+			$sql_params[] = $args['hook'];
+		}
 
 		if ( ! is_null( $args['args'] ) ) {
 			$sql .= ' AND args = %s';
