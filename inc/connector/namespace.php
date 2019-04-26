@@ -14,6 +14,8 @@ function bootstrap() {
 
 	// Filters introduced in WP 5.1.
 	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 2 );
+	// @todo: pre_reschedule_event (we don't really use this at work)
+	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
 }
 
 /**
@@ -82,6 +84,39 @@ function pre_schedule_event( $pre, $event ) {
 		$existing->save();
 		return true;
 	}
+}
+
+/**
+ * Unschedule a previously scheduled event.
+ *
+ * The $timestamp and $hook parameters are required so that the event can be
+ * identified.
+ *
+ * @param null|bool $pre       Value to return instead. Default null to continue unscheduling the event.
+ * @param int       $timestamp Timestamp for when to run the event.
+ * @param string    $hook      Action hook, the execution of which will be unscheduled.
+ * @param array     $args      Arguments to pass to the hook's callback function.
+ * @return null|bool True if event successfully scheduled. False for failure.
+ */
+function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
+	// First check if the job exists already.
+	$job = Job::get_jobs_by_query(
+		[
+			'hook' => $hook,
+			'timestamp' => $timestamp,
+			'args' => $args,
+		]
+	);
+
+	if ( empty( $job[0] ) ) {
+		// The job does not exist.
+		return false;
+	}
+
+	// Delete it.
+	$job[0]->delete();
+
+	return true;
 }
 
 /**
