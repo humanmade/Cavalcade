@@ -46,7 +46,7 @@ function pre_schedule_event( $pre, $event ) {
 	];
 
 	if ( $event->schedule === false ) {
-		// Search ten minute range.
+		// Search ten minute range to test for duplicate events.
 		$query['timestamp'] = [
 			$event->timestamp - ( 10 * MINUTE_IN_SECONDS ),
 			$event->timestamp + ( 10 * MINUTE_IN_SECONDS ),
