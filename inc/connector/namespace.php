@@ -19,6 +19,7 @@ function bootstrap() {
 	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
 	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 2 );
 	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\\pre_get_scheduled_event', 10, 4 );
+	add_filter( 'pre_get_ready_cron_jobs', __NAMESPACE__ . '\\pre_get_ready_cron_jobs' );
 }
 
 /**
@@ -242,6 +243,54 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 	}
 
 	return $value;
+}
+
+/**
+ * Retrieve cron jobs ready to be run.
+ *
+ * Returns the results of _get_cron_array() limited to events ready to be run,
+ * ie, with a timestamp in the past.
+ *
+ * @param null|array $pre Array of ready cron tasks to return instead. Default null
+ *                        to continue using results from _get_cron_array().
+ * @return array Cron jobs ready to be run.
+ */
+function pre_get_ready_cron_jobs( $pre ) {
+	$results = Job::get_jobs_by_query(
+		[
+			'timestamp' => 'past',
+			'limit' => 100,
+		]
+	);
+	$crons = [];
+
+	foreach ( $results as $result ) {
+		$timestamp = $result->nextrun;
+		$hook = $result->hook;
+		$key = md5( serialize( $result->args ) );
+		$value = [
+			'schedule' => $result->schedule,
+			'args'     => $result->args,
+			'_job'     => $result,
+		];
+
+		if ( isset( $result->interval ) ) {
+			$value['interval'] = $result->interval;
+		}
+
+		// Build the array up.
+		if ( ! isset( $crons[ $timestamp ] ) ) {
+			$crons[ $timestamp ] = [];
+		}
+		if ( ! isset( $crons[ $timestamp ][ $hook ] ) ) {
+			$crons[ $timestamp ][ $hook ] = [];
+		}
+		$crons[ $timestamp ][ $hook ][ $key ] = $value;
+	}
+
+	ksort( $crons, SORT_NUMERIC );
+
+	return $crons;
 }
 
 /**
