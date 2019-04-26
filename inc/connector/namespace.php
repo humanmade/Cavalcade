@@ -17,6 +17,7 @@ function bootstrap() {
 	// @todo: pre_reschedule_event (we don't really use this at work)
 	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
 	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
+	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 2 );
 }
 
 /**
@@ -130,7 +131,8 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
  *
  * @param null|array $pre  Value to return instead. Default null to continue unscheduling the event.
  * @param string     $hook Action hook, the execution of which will be unscheduled.
- * @param array      $args Arguments to pass to the hook's callback function.
+ * @param array|null $args Arguments to pass to the hook's callback function, null to clear all
+ *                         events regardless of arugments.
  * @return bool|int  On success an integer indicating number of events unscheduled (0 indicates no
  *                   events were registered with the hook and arguments combination), false if
  *                   unscheduling one or more events fail.
@@ -174,6 +176,25 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
 	} );
 
 	return $results;
+}
+
+/**
+ * Unschedules all events attached to the hook.
+ *
+ * Can be useful for plugins when deactivating to clean up the cron queue.
+ *
+ * Warning: This function may return Boolean FALSE, but may also return a non-Boolean
+ * value which evaluates to FALSE. For information about casting to booleans see the
+ * {@link https://php.net/manual/en/language.types.boolean.php PHP documentation}. Use
+ * the `===` operator for testing the return value of this function.
+ *
+ * @param null|array $pre  Value to return instead. Default null to continue unscheduling the hook.
+ * @param string     $hook Action hook, the execution of which will be unscheduled.
+ * @return bool|int On success an integer indicating number of events unscheduled (0 indicates no
+ *                  events were registered on the hook), false if unscheduling fails.
+ */
+function pre_unschedule_hook( $pre, $hook ) {
+	return pre_clear_scheduled_hook( $pre, $hook, null );
 }
 
 /**
