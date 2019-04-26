@@ -18,6 +18,7 @@ function bootstrap() {
 	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
 	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
 	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 2 );
+	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\\pre_get_scheduled_event', 10, 4 );
 }
 
 /**
@@ -195,6 +196,52 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
  */
 function pre_unschedule_hook( $pre, $hook ) {
 	return pre_clear_scheduled_hook( $pre, $hook, null );
+}
+
+/**
+ * Retrieve a scheduled event.
+ *
+ * Retrieve the full event object for a given event, if no timestamp is specified the next
+ * scheduled event is returned.
+ *
+ * @param null|bool $pre       Value to return instead. Default null to continue retrieving the event.
+ * @param string    $hook      Action hook of the event.
+ * @param array     $args      Array containing each separate argument to pass to the hook's callback function.
+ *                             Although not passed to a callback, these arguments are used to uniquely identify the
+ *                             event.
+ * @param int|null  $timestamp Unix timestamp (UTC) of the event. Null to retrieve next scheduled event.
+ * @return bool|object The event object. False if the event does not exist.
+ */
+function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
+	return $pre;
+
+	$job = Job::get_jobs_by_query(
+		[
+			'hook' => $hook,
+			'timestamp' => $timestamp,
+			'args' => $args,
+		]
+	);
+
+	if ( empty( $job ) ) {
+		return false;
+	}
+
+	$result = $job[0];
+
+	$timestamp = $result->nextrun;
+	$hook = $result->hook;
+	$value = [
+		'schedule' => $result->schedule,
+		'args'     => $result->args,
+		'_job'     => $result,
+	];
+
+	if ( isset( $result->interval ) ) {
+		$value['interval'] = $result->interval;
+	}
+
+	return $value;
 }
 
 /**
