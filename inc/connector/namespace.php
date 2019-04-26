@@ -47,9 +47,21 @@ function pre_schedule_event( $pre, $event ) {
 
 	if ( $event->schedule === false ) {
 		// Search ten minute range to test for duplicate events.
+		if ( $event->timestamp < time() + 10 * MINUTE_IN_SECONDS ) {
+			$min_timestamp = 0;
+		} else {
+			$min_timestamp = $event->timestamp - 10 * MINUTE_IN_SECONDS;
+		}
+
+		if ( $event->timestamp < time() ) {
+			$max_timestamp = time() + 10 * MINUTE_IN_SECONDS;
+		} else {
+			$max_timestamp = $event->timestamp + 10 * MINUTE_IN_SECONDS;
+		}
+
 		$query['timestamp'] = [
-			$event->timestamp - ( 10 * MINUTE_IN_SECONDS ),
-			$event->timestamp + ( 10 * MINUTE_IN_SECONDS ),
+			$min_timestamp,
+			$max_timestamp,
 		];
 	}
 
