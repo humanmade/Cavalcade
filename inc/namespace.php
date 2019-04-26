@@ -125,11 +125,11 @@ function create_tables() {
  * Populate the Cavalcade db version when upgrading to multisite.
  *
  * This ensures the database option is copied from the options table
- * accross to the sitemeta table when WordPress is manually upgraded from
+ * accross to the sitemeta table when WordPress is upgraded from
  * a single site install to a multisite install.
  */
 function maybe_populate_site_option() {
-	if ( is_multisite() || ! defined( 'WP_ALLOW_MULTISITE') || ! WP_ALLOW_MULTISITE ) {
+	if ( is_multisite() ) {
 		return;
 	}
 
