@@ -14,7 +14,7 @@ function bootstrap() {
 
 	// Filters introduced in WP 5.1.
 	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 2 );
-	// @todo: pre_reschedule_event (we don't really use this at work)
+	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\\pre_reschedule_event', 10, 2 );
 	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
 	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
 	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 2 );
@@ -88,6 +88,51 @@ function pre_schedule_event( $pre, $event ) {
 		$existing->save();
 		return true;
 	}
+}
+
+/**
+ * Reschedules a recurring event.
+ *
+ * @param null|bool $pre   Value to return instead. Default null to continue adding the event.
+ * @param stdClass  $event {
+ *     An object containing an event's data.
+ *
+ *     @type string       $hook      Action hook to execute when the event is run.
+ *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
+ *     @type string|false $schedule  How often the event should subsequently recur.
+ *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
+ *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+ * }
+ * @return bool True if event successfully rescheduled. False for failure.
+ */
+function pre_reschedule_event( $pre, $event ) {
+	// First check if the job exists already.
+	$job = Job::get_jobs_by_query(
+		[
+			'hook' => $event->hook,
+			'timestamp' => $event->timestamp,
+			'args' => $event->args,
+		]
+	);
+
+	if ( empty( $job[0] ) ) {
+		// The job does not exist.
+		return false;
+	}
+	$job = $job[0];
+
+	// Now we assume something is wrong (single job?) and fail to reschedule
+	if ( 0 === $event->interval && 0 === $job->interval ) {
+		return false;
+	}
+
+	$job->nextrun = $job->nextrun + $event->interval;
+	$job->interval = $event->interval;
+	$job->schedule = $event->schedule;
+	$job->save();
+
+	// Rescheduled.
+	return true;
 }
 
 /**
