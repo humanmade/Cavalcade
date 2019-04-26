@@ -324,10 +324,10 @@ class Job {
 			in_array( $timestamp_compare, [ '<=', '<', '>', '>=', '=' ] )
 		) {
 			$sql .= " AND nextrun {$timestamp_compare} %s";
-			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $timestamp ) );
+			$sql_params[] = date( MYSQL_DATE_FORMAT, $timestamp );
 		} elseif ( ! empty( $args['timestamp'] ) ) {
 			$sql .= ' AND nextrun = %s';
-			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $args['timestamp'] ) );
+			$sql_params[] = date( MYSQL_DATE_FORMAT, $args['timestamp'] );
 		}
 
 		$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $args['statuses'] ), '%s' ) ) . ')';
@@ -346,6 +346,7 @@ class Job {
 		}
 
 		$query = $wpdb->prepare( $sql, $sql_params );
+		var_dump( $query );
 		$results = $wpdb->get_results( $query );
 
 		if ( $args['__raw'] === true ) {
