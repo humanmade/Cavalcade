@@ -340,8 +340,11 @@ class Job {
 		} else {
 			$sql .= ' ASC';
 		}
-		$sql .= ' LIMIT %d';
-		$sql_params[] = $args['limit'];
+
+		if ( $args['limit'] > 0 ) {
+			$sql .= ' LIMIT %d';
+			$sql_params[] = $args['limit'];
+		}
 
 		$query = $wpdb->prepare( $sql, $sql_params );
 		$results = $wpdb->get_results( $query );
