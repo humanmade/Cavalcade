@@ -238,12 +238,14 @@ class Job {
 	 * on the paramaters.
 	 *
 	 * @param array|\stdClass $args {
-	 *     @param string      $hook      Jobs hook to return. Required.
-	 *     @param int|null    $timestamp Timestamp to search for. Optional. Next event by default.
-	 *     @param array       $args      Cron job arguments.
-	 *     @param int|object  $site      Site to query. Default current site.
-	 *     @param array       $statuses  Job statuses to query. Default to waiting and running.
-	 *     @param int         $limit     Max number of jobs to return. Default 1.
+	 *     @param string          $hook      Jobs hook to return. Required.
+	 *     @param int|string|null $timestamp Timestamp to search for. Optional.
+	 *                                       String shortcuts `future`: >= NOW(); `past`: < NOW()
+	 *     @param array           $args      Cron job arguments.
+	 *     @param int|object      $site      Site to query. Default current site.
+	 *     @param array           $statuses  Job statuses to query. Default to waiting and running.
+	 *     @param int             $limit     Max number of jobs to return. Default 1.
+	 *     @param string          $order     ASC or DESC. Default ASC.
 	 * }
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
 	 */
@@ -258,6 +260,7 @@ class Job {
 			'site' => get_current_blog_id(),
 			'statuses' => [ 'waiting', 'running' ],
 			'limit' => 1,
+			'order' => 'ASC',
 		];
 
 		$args = wp_parse_args( $args, $defaults );
@@ -283,6 +286,14 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_limit' );
 		}
 
+		if ( $args['timestamp'] === 'future' ) {
+			$timestamp = time();
+			$timestamp_compare = '>=';
+		} elseif ( $args['timestamp'] === 'past' ) {
+			$timestamp = time();
+			$timestamp_compare = '<';
+		}
+
 		$args['limit' ] = absint( $args['limit' ] );
 
 		if ( $args['limit'] > 100 ) {
@@ -303,9 +314,16 @@ class Job {
 			$sql_params[] = serialize( $args['args'] );
 		}
 
-		if ( empty( $args['timestamp'] ) ) {
-			$sql .= ' AND nextrun >= NOW()';
-		} else {
+		if (
+			! empty( $args['timestamp'] ) &&
+			in_array( $args['timestamp'], ['past', 'future'] ) &&
+			! empty( $timestamp ) &&
+			! empty( $timestamp_compare ) &&
+			in_array( $timestamp_compare, [ '<=', '<', '>', '>=', '=' ] )
+		) {
+			$sql .= " AND nextrun {$timestamp_compare} %s";
+			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $timestamp ) );
+		} elseif ( ! empty( $args['timestamp'] ) ) {
 			$sql .= ' AND nextrun = %s';
 			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $args->timestamp ) );
 		}
@@ -313,7 +331,12 @@ class Job {
 		$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $args['statuses'] ), '%s' ) ) . ')';
 		$sql_params = array_merge( $sql_params, $args['statuses'] );
 
-		$sql .= ' ORDER BY nextrun ASC';
+		$sql .= ' ORDER BY nextrun';
+		if ( $args['order'] === 'DESC' ) {
+			$sql .= ' DESC';
+		} else {
+			$sql .= ' ASC';
+		}
 		$sql .= ' LIMIT %d';
 		$sql_params[] = $args['limit'];
 
