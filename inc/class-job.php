@@ -212,6 +212,7 @@ class Job {
 					'site' => $site,
 					'args' => null,
 					'statuses' => $statuses,
+					'limit' => 0,
 					'__raw' => true,
 				]
 			);
