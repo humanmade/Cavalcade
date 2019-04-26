@@ -326,7 +326,7 @@ class Job {
 			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $timestamp ) );
 		} elseif ( ! empty( $args['timestamp'] ) ) {
 			$sql .= ' AND nextrun = %s';
-			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $args->timestamp ) );
+			$sql_params[] = date( MYSQL_DATE_FORMAT, strtotime( $args['timestamp'] ) );
 		}
 
 		$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $args['statuses'] ), '%s' ) ) . ')';
