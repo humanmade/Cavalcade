@@ -16,6 +16,7 @@ function bootstrap() {
 	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 2 );
 	// @todo: pre_reschedule_event (we don't really use this at work)
 	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
+	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
 }
 
 /**
@@ -117,6 +118,62 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
 	$job[0]->delete();
 
 	return true;
+}
+
+/**
+ * Unschedules all events attached to the hook with the specified arguments.
+ *
+ * Warning: This function may return Boolean FALSE, but may also return a non-Boolean
+ * value which evaluates to FALSE. For information about casting to booleans see the
+ * {@link https://php.net/manual/en/language.types.boolean.php PHP documentation}. Use
+ * the `===` operator for testing the return value of this function.
+ *
+ * @param null|array $pre  Value to return instead. Default null to continue unscheduling the event.
+ * @param string     $hook Action hook, the execution of which will be unscheduled.
+ * @param array      $args Arguments to pass to the hook's callback function.
+ * @return bool|int  On success an integer indicating number of events unscheduled (0 indicates no
+ *                   events were registered with the hook and arguments combination), false if
+ *                   unscheduling one or more events fail.
+*/
+function pre_clear_scheduled_hook( $pre, $hook, $args ) {
+
+	// First check if the job exists already.
+	$jobs = Job::get_jobs_by_query(
+		[
+			'hook' => $hook,
+			'args' => $args,
+			'limit' => 100,
+		]
+	);
+
+	if ( empty( $jobs ) ) {
+		// No jobs to unschedule.
+		return 0;
+	}
+
+	$ids = wp_list_pluck( $jobs, 'id' );
+
+	global $wpdb;
+
+	// Clear all scheduled events for this site
+	$table = Job::get_table();
+
+	$sql = "DELETE FROM `{$table}` WHERE site = %d";
+	$sql_params[] = get_current_blog_id();
+
+	$sql .= ' AND id IN(' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
+	$sql_params = array_merge( $sql_params, $ids );
+
+	$query = $wpdb->prepare( $sql, $sql_params );
+	$results = $wpdb->query( $query );
+
+	// Flush the caches.
+	wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+	array_walk( $ids, function( $id ) {
+		wp_cache_delete( "job::{$id}", 'cavalcade-jobs' );
+	} );
+
+	return $results;
 }
 
 /**
