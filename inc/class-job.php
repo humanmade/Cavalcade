@@ -95,7 +95,7 @@ class Job {
 
 	}
 
-	protected static function get_table() {
+	public static function get_table() {
 		global $wpdb;
 		return $wpdb->base_prefix . 'cavalcade_jobs';
 	}
