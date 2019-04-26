@@ -346,7 +346,6 @@ class Job {
 		}
 
 		$query = $wpdb->prepare( $sql, $sql_params );
-		var_dump( $query );
 		$results = $wpdb->get_results( $query );
 
 		if ( $args['__raw'] === true ) {
