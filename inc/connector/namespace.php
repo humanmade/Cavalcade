@@ -32,11 +32,6 @@ function bootstrap() {
  * @return null|bool True if event successfully scheduled. False for failure.
  */
 function pre_schedule_event( $pre, $event ) {
-
-	if ( ! isset( $event->interval ) ) {
-		return pre_schedule_single_event();
-	}
-
 	// First check if the job exists already.
 	$job = Job::get_jobs_by_query(
 		[
@@ -87,7 +82,6 @@ function pre_schedule_event( $pre, $event ) {
 		$existing->save();
 		return true;
 	}
-
 }
 
 /**
