@@ -39,13 +39,21 @@ function bootstrap() {
  */
 function pre_schedule_event( $pre, $event ) {
 	// First check if the job exists already.
-	$job = Job::get_jobs_by_query(
-		[
-			'hook' => $event->hook,
-			'timestamp' => $event->timestamp,
-			'args' => $event->args,
-		]
-	);
+	$query = [
+		'hook' => $event->hook,
+		'timestamp' => $event->timestamp,
+		'args' => $event->args,
+	];
+
+	if ( $event->schedule === false ) {
+		// Search ten minute range.
+		$query['timestamp'] = [
+			$event->timestamp - ( 10 * MINUTE_IN_SECONDS ),
+			$event->timestamp + ( 10 * MINUTE_IN_SECONDS ),
+		];
+	}
+
+	$job = Job::get_jobs_by_query( $query );
 
 	if ( empty( $job[0] ) ) {
 		// The job does not exist.
@@ -64,7 +72,7 @@ function pre_schedule_event( $pre, $event ) {
 		$existing->interval === null &&
 		! isset( $event->interval )
 	) {
-		// Unchanged single event.
+		// Unchanged or duplicate single event.
 		return false;
 	} elseif (
 		(
