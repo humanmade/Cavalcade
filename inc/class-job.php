@@ -327,6 +327,15 @@ class Job {
 		) {
 			$sql .= " AND nextrun {$timestamp_compare} %s";
 			$sql_params[] = date( MYSQL_DATE_FORMAT, $timestamp );
+		} elseif (
+			! empty( $args['timestamp'] ) &&
+			is_array( $args['timestamp'] ) &&
+			count( $args['timestamp'] ) === 2
+		) {
+			// It's a range.
+			$sql .= ' AND nextrun BETWEEN %s AND %s';
+			$sql_params[] = date( MYSQL_DATE_FORMAT, $args['timestamp'][0] );
+			$sql_params[] = date( MYSQL_DATE_FORMAT, $args['timestamp'][1] );
 		} elseif ( ! empty( $args['timestamp'] ) ) {
 			$sql .= ' AND nextrun = %s';
 			$sql_params[] = date( MYSQL_DATE_FORMAT, $args['timestamp'] );
