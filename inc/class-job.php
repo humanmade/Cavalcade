@@ -235,6 +235,8 @@ class Job {
 	 * Returns an array of Job instances for the current site based
 	 * on the paramaters.
 	 *
+	 * @todo: allow searching within time window for duplicate events.
+	 *
 	 * @param array|\stdClass $args {
 	 *     @param string          $hook      Jobs hook to return. Optional.
 	 *     @param int|string|null $timestamp Timestamp to search for. Optional.
