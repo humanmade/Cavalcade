@@ -97,5 +97,63 @@ class Query {
 				'waiting',
 			],
 		];
+
+		$this->query( $query );
+	}
+
+	/**
+	 * Set up the query for retrieving jobs.
+	 *
+	 * @param array $query Array of query parameters, see __construct().
+	 * @return array An array of Job instances or integers if fields is set to `ids`.
+	 */
+	function query( $query = [] ) {
+		$this->query_vars = wp_parse_args( $query, $this->query_var_defaults );
+		return $this->get_jobs();
+	}
+
+	/**
+	 * Gets jobs based on the query arguments.
+	 *
+	 * @return array An array of Job instances or integers if fields is set to `ids`.
+	 */
+	function get_jobs() {
+		$job_ids = $this->get_job_ids();
+
+		if ( $this->query_vars === 'ids' ) {
+			return $job_ids;
+		}
+	}
+
+	/**
+	 * Get job IDs baseed on the query arguments.
+	 *
+	 * @return array Array of Job IDs.
+	 */
+	function get_job_ids() {
+		$this->parse_query();
+	}
+
+	/**
+	 * Parse the passed query arguments with the defaults.
+	 *
+	 * @return void
+	 */
+	function parse_query() {
+		$query = &$this->query_vars;
+
+		$query['fields'] = strtolower( $query['fields'] );
+		if ( ! in_array( $query['fields'], ['ids', 'all' ], true ) ) {
+			$query['fields'] = 'all';
+		}
+
+		if ( ! empty( $query['jobs'] ) ) {
+			$query['jobs'] = array_filter( (array) $query['jobs'], 'is_int' );
+		}
+
+		$query['site_id'] = filter_var( $query['site_id'], FILTER_VALIDATE_INT );
+		if ( empty( $query['site_id' ] ) ) {
+			$query['site_id'] = $this->query_var_defaults['site_id'];
+		}
 	}
 }
