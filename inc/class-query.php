@@ -56,4 +56,46 @@ class Query {
 	 * @var int
 	 */
 	public $found_jobs = 0;
+
+	/**
+	 * Set up the Job query, based on the parameters passed.
+	 *
+	 * @param string|array $query {
+	 *     Optional. Array or query string of site query parameters. Default empty.
+	 *
+	 *     @type string   $fields   Fields to return, accepts `all` or `ids`. Default: `all`.
+	 *     @type int[]    $job_ids  Specific Job IDs to search for. Default: all matching jobs.
+	 *     @type int      $site_id  The site on which jobs run. Required.
+	 *                              Default current site.
+	 *     @type string   $hook     The job's hook name.
+	 *     @type array    $args     The job's arguments array. Default: [].
+	 *     @type array    $nextrun  Date query to limit jobs by. Default: future
+	 *                              jobs. See WP_Date_Query.
+	 *     @type int      $interval The frequency in seconds jobs run at.
+	 *     @type string   $schedule The named schedule on which jobs run.
+	 *     @type string[] $status   Array of statuses to search for, accepts
+	 *                              `waiting` (default), `failed`, `completed` or `running`.
+	 * }
+	 */
+	function __construct( $query = [] ) {
+		$this->query_var_defaults = [
+			'fields' => 'all',
+			'job_ids' => null,
+			'site_id' => get_current_blog_id(),
+			'hook' => null,
+			'args' => [],
+			// See WP_Date_Query
+			'nextrun' => [
+				[
+					'after' => 'now',
+					'inclusive' => false,
+				],
+			],
+			'interval' => null,
+			'schedule' => null,
+			'status' => [
+				'waiting',
+			],
+		];
+	}
 }
