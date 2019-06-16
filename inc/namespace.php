@@ -76,7 +76,11 @@ function create_tables() {
 		`schedule` varchar(255) DEFAULT NULL,
 
 		PRIMARY KEY (`id`),
-		KEY `status` (`status`)
+		KEY `status` (`status`),
+		KEY `site` (`site`),
+		KEY `hook_args` (`hook`, `args`(500)),
+		KEY `nextrun` (`nextrun`),
+		KEY `schedule` (`schedule`)
 	) ENGINE=InnoDB;\n";
 
 	// TODO: check return value
