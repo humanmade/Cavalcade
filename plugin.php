@@ -14,7 +14,7 @@ namespace HM\Cavalcade\Plugin;
 use WP_CLI;
 
 const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 
 require __DIR__ . '/inc/namespace.php';
 require __DIR__ . '/inc/class-job.php';
