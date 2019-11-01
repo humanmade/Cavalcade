@@ -62,6 +62,9 @@ function is_installed() {
 
 function create_tables() {
 	global $wpdb;
+
+	$charset_collate = $wpdb->get_charset_collate();
+
 	$query = "CREATE TABLE IF NOT EXISTS `{$wpdb->base_prefix}cavalcade_jobs` (
 		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		`site` bigint(20) unsigned NOT NULL,
@@ -77,7 +80,7 @@ function create_tables() {
 
 		PRIMARY KEY (`id`),
 		KEY `status` (`status`)
-	) ENGINE=InnoDB;\n";
+	) ENGINE=InnoDB {$charset_collate}; \n";
 
 	// TODO: check return value
 	$wpdb->query( $query );
@@ -91,7 +94,7 @@ function create_tables() {
 		PRIMARY KEY (`id`),
 		KEY `job` (`job`),
 		KEY `status` (`status`)
-	) ENGINE=InnoDB;\n";
+	) ENGINE=InnoDB {$charset_collate};\n";
 
 	$wpdb->query( $query );
 
