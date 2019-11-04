@@ -80,7 +80,7 @@ function create_tables() {
 
 		PRIMARY KEY (`id`),
 		KEY `status` (`status`)
-	) ENGINE=InnoDB {$charset_collate}; \n";
+	) ENGINE=InnoDB {$charset_collate};\n";
 
 	// TODO: check return value
 	$wpdb->query( $query );
