@@ -114,7 +114,7 @@ function create_tables() {
 	 *
 	 * Note: This does not work for multisite manual installs.
 	 */
-	add_filter( 'populate_network_meta', function( $site_meta ) {
+	add_filter( 'populate_network_meta', function ( $site_meta ) {
 		$site_meta['cavalcade_db_version'] = DATABASE_VERSION;
 		return $site_meta;
 	} );
