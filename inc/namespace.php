@@ -107,7 +107,8 @@ function create_tables() {
 
 	wp_cache_set( 'installed', true, 'cavalcade' );
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
-	/*
+
+	/**
 	 * Ensure site meta is populated when running the WP CLI script to
 	 * install a network. Using the CLI, WP installs a single site with
 	 * wp_install() and then upgrades it to a multiste install immediately.
