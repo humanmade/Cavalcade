@@ -21,6 +21,8 @@ require $test_root . '/includes/functions.php';
 
 tests_add_filter( 'muplugins_loaded', function () {
 	require dirname( __DIR__ ) . '/plugin.php';
+	// Call create tables before each run.
+	HM\Cavalcade\Plugin\create_tables();
 });
 
 require $test_root . '/includes/bootstrap.php';
