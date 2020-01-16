@@ -11,8 +11,7 @@
 
 namespace HM\Cavalcade\Plugin;
 
-// phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysql_date_format
-const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
+const DATE_FORMAT = 'Y-m-d H:i:s';
 const DATABASE_VERSION = 2;
 
 require __DIR__ . '/inc/namespace.php';
