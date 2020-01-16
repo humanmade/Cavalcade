@@ -12,12 +12,12 @@ class Tests_Rescheduling extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 		// make sure the schedule is clear
-		_set_cron_array(array());
+		_set_cron_array( [] );
 	}
 
 	function tearDown() {
 		// make sure the schedule is clear
-		_set_cron_array(array());
+		_set_cron_array( [] );
 		parent::tearDown();
 	}
 
