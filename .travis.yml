@@ -1,10 +1,12 @@
 language: php
 php:
-  - '7.1'
+  - '7.2'
+services:
+  - mysql
 install:
   - composer install
   - bash tests/install-tests.sh wordpress_test root '' 127.0.0.1 latest
 script:
-  - phpunit --exclude-group 32656
+  - vendor/bin/phpunit --exclude-group 32656
 notifications:
     email: false
