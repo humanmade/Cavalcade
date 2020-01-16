@@ -1,9 +1,12 @@
 <?php
+/**
+ * phpcs:ignoreFile WordPress.DB.PreparedSQL.NotPrepared
+ */
 
 namespace HM\Cavalcade\Plugin\Upgrade;
 
-use HM\Cavalcade\Plugin as Cavalcade;
 use const HM\Cavalcade\Plugin\DATABASE_VERSION;
+use HM\Cavalcade\Plugin as Cavalcade;
 
 /**
  * Update the Cavalcade database version if required.

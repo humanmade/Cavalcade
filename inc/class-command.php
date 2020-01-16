@@ -1,4 +1,7 @@
 <?php
+/**
+ * phpcs:ignoreFile WordPress.DB.PreparedSQL.NotPrepared
+ */
 
 namespace HM\Cavalcade\Plugin;
 
@@ -46,7 +49,7 @@ class Command extends WP_CLI_Command {
 	 *
 	 * @synopsis [--format=<format>] [--fields=<fields>] [--job=<job-id>] [--hook=<hook>]
 	 */
-	public function log( $args, $assoc_args  ) {
+	public function log( $args, $assoc_args ) {
 
 		global $wpdb;
 
@@ -91,7 +94,7 @@ class Command extends WP_CLI_Command {
 	 *
 	 * @synopsis [--format=<format>] [--id=<job-id>] [--site=<site-id>] [--hook=<hook>] [--status=<status>] [--limit=<limit>] [--page=<page>]
 	 */
-	public function jobs( $args, $assoc_args  ) {
+	public function jobs( $args, $assoc_args ) {
 
 		global $wpdb;
 

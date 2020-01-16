@@ -1,4 +1,7 @@
 <?php
+/**
+ * phpcs:ignoreFile WordPress.DB.PreparedSQL.NotPrepared
+ */
 
 namespace HM\Cavalcade\Plugin;
 
@@ -43,8 +46,8 @@ class Job {
 		$data = [
 			'hook'    => $this->hook,
 			'site'    => $this->site,
-			'start'   => gmdate( MYSQL_DATE_FORMAT, $this->start ),
-			'nextrun' => gmdate( MYSQL_DATE_FORMAT, $this->nextrun ),
+			'start'   => gmdate( DATE_FORMAT, $this->start ),
+			'nextrun' => gmdate( DATE_FORMAT, $this->nextrun ),
 			'args'    => serialize( $this->args ),
 		];
 
