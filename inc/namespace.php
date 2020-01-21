@@ -22,7 +22,10 @@ function bootstrap() {
  * Register the cache groups
  */
 function register_cache_groups() {
-	wp_cache_add_global_groups( [ 'cavalcade' ] );
+	wp_cache_add_global_groups( [
+		'cavalcade',
+		'cavalcade-job-queries',
+	] );
 	wp_cache_add_non_persistent_groups( [ 'cavalcade-jobs' ] );
 }
 

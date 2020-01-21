@@ -58,8 +58,6 @@ class Job {
 			}
 		}
 
-		self::flush_query_cache();
-
 		if ( $this->is_created() ) {
 			$where = [
 				'id' => $this->id,
@@ -70,6 +68,7 @@ class Job {
 			$this->id = $wpdb->insert_id;
 		}
 
+		self::flush_query_cache();
 		wp_cache_set( "job::{$this->id}", $this, 'cavalcade-jobs' );
 	}
 
@@ -371,8 +370,9 @@ class Job {
 		// Use caching if group deletion is supported.
 		if ( function_exists( 'wp_cache_delete_group' ) ) {
 			$query_hash = md5( $query );
-			$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-job-queries' );
-			if ( ! $results ) {
+			$found = null;
+			$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-job-queries', true, $found );
+			if ( ! $found ) {
 				$results = $wpdb->get_results( $query );
 				wp_cache_set( "jobs::{$query_hash}", $results, 'cavalcade-job-queries' );
 			}
