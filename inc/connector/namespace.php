@@ -68,9 +68,10 @@ function pre_schedule_event( $pre, $event ) {
 		];
 	}
 
-	$job = Job::get_jobs_by_query( $query );
+	$jobs = Job::get_jobs_by_query( $query );
+	$existing = reset( $jobs );
 
-	if ( empty( $job[0] ) ) {
+	if ( empty( $existing ) ) {
 		// The job does not exist.
 		schedule_event( $event );
 
@@ -78,7 +79,6 @@ function pre_schedule_event( $pre, $event ) {
 	}
 
 	// The job exists.
-	$existing = $job[0];
 	if (
 		(
 			Cavalcade\get_database_version() >= 2 &&
