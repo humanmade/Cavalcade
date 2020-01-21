@@ -240,7 +240,7 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
 	$results = $wpdb->query( $query );
 
 	// Flush the caches.
-	wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+	Job::flush_query_cache();
 	array_walk( $ids, function( $id ) {
 		wp_cache_delete( "job::{$id}", 'cavalcade-jobs' );
 	} );

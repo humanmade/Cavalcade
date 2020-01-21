@@ -7,6 +7,7 @@ namespace HM\Cavalcade\Plugin\Upgrade;
 
 use const HM\Cavalcade\Plugin\DATABASE_VERSION;
 use HM\Cavalcade\Plugin as Cavalcade;
+use HM\Cavalcade\Plugin\Job;
 
 /**
  * Update the Cavalcade database version if required.
@@ -30,7 +31,7 @@ function upgrade_database() {
 
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
 
-	wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+	Job::flush_query_cache();
 
 	// Upgrade successful.
 	return true;
