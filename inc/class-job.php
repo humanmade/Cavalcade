@@ -195,41 +195,23 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
-		$use_cache = (
-			! function_exists( 'wp_cache_delete_group' ) &&
-			! $include_completed &&
-			! $include_failed &&
-			! $exclude_future
+		$statuses = [ 'waiting', 'running' ];
+		if ( $include_completed ) {
+			$statuses[] = 'completed';
+		}
+		if ( $include_failed ) {
+			$statuses[] = 'failed';
+		}
+
+		$results = static::get_jobs_by_query(
+			[
+				'site' => $site,
+				'args' => null,
+				'statuses' => $statuses,
+				'limit' => 0,
+				'__raw' => true,
+			]
 		);
-
-		$results = [];
-		if ( $use_cache ) {
-			$results = wp_cache_get( 'jobs', 'cavalcade-jobs' );
-		}
-
-		if ( empty( $results ) ) {
-			$statuses = [ 'waiting', 'running' ];
-			if ( $include_completed ) {
-				$statuses[] = 'completed';
-			}
-			if ( $include_failed ) {
-				$statuses[] = 'failed';
-			}
-
-			$results = static::get_jobs_by_query(
-				[
-					'site' => $site,
-					'args' => null,
-					'statuses' => $statuses,
-					'limit' => 0,
-					'__raw' => true,
-				]
-			);
-
-			if ( $use_cache ) {
-				wp_cache_set( 'jobs', $results, 'cavalcade-jobs' );
-			}
-		}
 
 		if ( empty( $results ) ) {
 			return [];
@@ -365,37 +347,30 @@ class Job {
 			$sql_params[] = $args['limit'];
 		}
 
-		$query = $wpdb->prepare( $sql, $sql_params );
+		// Cache results.
+		$last_changed = wp_cache_get_last_changed( 'cavalcade-jobs' );
+		$query_hash = md5( serialize( [ $sql, $sql_params ] ) ) . "::{$last_changed}";
+		$found = null;
+		$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-jobs', true, $found );
 
-		// Use caching if group deletion is supported.
-		if ( function_exists( 'wp_cache_delete_group' ) ) {
-			$query_hash = md5( $query );
-			$found = null;
-			$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-job-queries', true, $found );
-			if ( ! $found ) {
-				$results = $wpdb->get_results( $query );
-				wp_cache_set( "jobs::{$query_hash}", $results, 'cavalcade-job-queries' );
-			}
-		} else {
+		if ( ! $found ) {
+			$query = $wpdb->prepare( $sql, $sql_params );
 			$results = $wpdb->get_results( $query );
+			wp_cache_set( "jobs::{$query_hash}", $results, 'cavalcade-jobs' );
 		}
 
 		if ( $args['__raw'] === true ) {
 			return $results;
 		}
+
 		return static::to_instances( $results );
 	}
 
 	/**
-	 * Flush the job query cache. If using WP Redis or persistent store
-	 * that support deleting cache entries by group this will flush the group.
+	 * Invalidates existing query cache keys by updating last changed time.
 	 */
 	public static function flush_query_cache() {
-		if ( function_exists( 'wp_cache_delete_group' ) ) {
-			wp_cache_delete_group( 'cavalcade-job-queries' );
-		} else {
-			wp_cache_delete( 'jobs', 'cavalcade-jobs' );
-		}
+		wp_cache_set( 'last_changed', microtime(), 'cavalcade-jobs' );
 	}
 
 	/**

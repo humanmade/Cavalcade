@@ -282,7 +282,6 @@ function pre_unschedule_hook( $pre, $hook ) {
  * @return bool|object The event object. False if the event does not exist.
  */
 function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
-	return $pre;
 
 	$job = Job::get_jobs_by_query(
 		[
@@ -298,16 +297,16 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 
 	$result = $job[0];
 
-	$timestamp = $result->nextrun;
-	$hook = $result->hook;
-	$value = [
-		'schedule' => $result->schedule,
-		'args'     => $result->args,
-		'_job'     => $result,
+	$value = (object) [
+		'hook'      => $result->hook,
+		'timestamp' => $result->nextrun,
+		'schedule'  => $result->schedule,
+		'args'      => $result->args,
+		'_job'      => $result,
 	];
 
 	if ( isset( $result->interval ) ) {
-		$value['interval'] = $result->interval;
+		$value->interval = (int) $result->interval;
 	}
 
 	return $value;
@@ -336,14 +335,14 @@ function pre_get_ready_cron_jobs( $pre ) {
 		$timestamp = $result->nextrun;
 		$hook = $result->hook;
 		$key = md5( serialize( $result->args ) );
-		$value = [
-			'schedule' => $result->schedule,
-			'args'     => $result->args,
-			'_job'     => $result,
+		$value = (object) [
+			'schedule'  => $result->schedule,
+			'args'      => $result->args,
+			'_job'      => $result,
 		];
 
 		if ( isset( $result->interval ) ) {
-			$value['interval'] = $result->interval;
+			$value->interval = (int) $result->interval;
 		}
 
 		// Build the array up.
