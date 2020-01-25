@@ -208,7 +208,6 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
  *                   unscheduling one or more events fail.
 */
 function pre_clear_scheduled_hook( $pre, $hook, $args ) {
-
 	// First check if the job exists already.
 	$jobs = Job::get_jobs_by_query(
 		[
@@ -282,7 +281,6 @@ function pre_unschedule_hook( $pre, $hook ) {
  * @return bool|object The event object. False if the event does not exist.
  */
 function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
-
 	$job = Job::get_jobs_by_query(
 		[
 			'hook' => $hook,

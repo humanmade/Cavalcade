@@ -94,7 +94,6 @@ class Job {
 		wp_cache_delete( "job::{$this->id}", 'cavalcade-jobs' );
 
 		return (bool) $result;
-
 	}
 
 	public static function get_table() {
