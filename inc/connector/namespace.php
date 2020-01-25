@@ -138,11 +138,11 @@ function pre_reschedule_event( $pre, $event ) {
 		]
 	);
 
-	if ( empty( $job[0] ) ) {
+	if ( empty( $job ) || empty ( reset( $job ) ) ) {
 		// The job does not exist.
 		return false;
 	}
-	$job = $job[0];
+	$job = reset( $job );
 
 	// Now we assume something is wrong (single job?) and fail to reschedule
 	if ( 0 === $event->interval && 0 === $job->interval ) {
@@ -180,13 +180,13 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
 		]
 	);
 
-	if ( empty( $job[0] ) ) {
+	if ( empty( $job ) || empty ( reset( $job ) ) ) {
 		// The job does not exist.
 		return false;
 	}
 
 	// Delete it.
-	$job[0]->delete();
+	reset( $job )->delete();
 
 	return true;
 }
@@ -295,7 +295,7 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 		return false;
 	}
 
-	$result = $job[0];
+	$result = reset( $job );
 
 	$value = (object) [
 		'hook'      => $result->hook,
