@@ -302,7 +302,6 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 		'timestamp' => $result->nextrun,
 		'schedule'  => $result->schedule,
 		'args'      => $result->args,
-		'_job'      => $result,
 	];
 
 	if ( isset( $result->interval ) ) {
