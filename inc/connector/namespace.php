@@ -116,6 +116,13 @@ function pre_schedule_event( $pre, $event ) {
 /**
  * Reschedules a recurring event.
  *
+ * Note: The Cavalcade reschedule behaviour is intentionally different to WordPress's.
+ * To avoid drift of cron schedules, Cavalcade adds the interval to the next scheduled
+ * run time without checking if this time is in the past.
+ *
+ * To ensure the next run time is in the future, it is recommended you delete and reschedule
+ * a job.
+ *
  * @param null|bool $pre   Value to return instead. Default null to continue adding the event.
  * @param stdClass  $event {
  *     An object containing an event's data.
