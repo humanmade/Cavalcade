@@ -317,7 +317,7 @@ class Job {
 			in_array( $timestamp_compare, [ '<=', '<', '>', '>=', '=' ] )
 		) {
 			$sql .= " AND nextrun {$timestamp_compare} %s";
-			$sql_params[] = date( DATE_FORMAT, $timestamp );
+			$sql_params[] = date( DATE_FORMAT, (int) $timestamp );
 		} elseif (
 			! empty( $args['timestamp'] ) &&
 			is_array( $args['timestamp'] ) &&
@@ -325,11 +325,11 @@ class Job {
 		) {
 			// It's a range.
 			$sql .= ' AND nextrun BETWEEN %s AND %s';
-			$sql_params[] = date( DATE_FORMAT, $args['timestamp'][0] );
-			$sql_params[] = date( DATE_FORMAT, $args['timestamp'][1] );
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][0] );
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][1] );
 		} elseif ( ! empty( $args['timestamp'] ) ) {
 			$sql .= ' AND nextrun = %s';
-			$sql_params[] = date( DATE_FORMAT, $args['timestamp'] );
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'] );
 		}
 
 		$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $args['statuses'] ), '%s' ) ) . ')';
