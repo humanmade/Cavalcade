@@ -10,7 +10,7 @@ use HM\Cavalcade\Plugin\Job;
  */
 function bootstrap() {
 	add_filter( 'pre_update_option_cron', __NAMESPACE__ . '\\update_cron_array', 10, 2 );
-	add_filter( 'pre_option_cron',        __NAMESPACE__ . '\\get_cron_array' );
+	add_filter( 'pre_option_cron', __NAMESPACE__ . '\\get_cron_array' );
 }
 
 /**
@@ -40,7 +40,8 @@ function schedule_event( $event ) {
 	$job = new Job();
 	$job->hook = $event->hook;
 	$job->site = get_current_blog_id();
-	$job->start = $job->nextrun = $event->timestamp;
+	$job->nextrun = $event->timestamp;
+	$job->start = $job->nextrun;
 	$job->args = $event->args;
 
 	$job->save();
@@ -55,7 +56,8 @@ function schedule_recurring_event( $event ) {
 	$job = new Job();
 	$job->hook = $event->hook;
 	$job->site = get_current_blog_id();
-	$job->start = $job->nextrun = $event->timestamp;
+	$job->nextrun = $event->timestamp;
+	$job->start = $job->nextrun;
 	$job->interval = $event->interval;
 	$job->args = $event->args;
 

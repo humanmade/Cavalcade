@@ -15,6 +15,6 @@
 	},
 	"require-dev": {
 		"humanmade/coding-standards": "dev-master",
-		"phpunit/phpunit": "^7.5"
+		"phpunit/phpunit": "7.1"
 	}
 }

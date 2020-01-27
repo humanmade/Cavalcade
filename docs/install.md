@@ -47,3 +47,6 @@ If you're using Upstart (Ubuntu 12.04, 14.04) or systemd (Ubuntu 16.04+), we rec
 
 Note that while the Runner does not require system-level user access (such as a root account), we don’t recommend using it on systems you don’t control (such as shared hosting).
 
+### Usage
+
+You can manually manage jobs via the `wp cavalcade` command, run `wp help cavalcade` for full documentation.
