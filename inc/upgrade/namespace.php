@@ -77,7 +77,7 @@ function upgrade_database_3() {
 
 	$query = "ALTER TABLE `{$wpdb->base_prefix}cavalcade_jobs`
 			  ADD INDEX `site` (`site`),
-			  ADD INDEX `hook_args` (`hook`, `args`(50)),
+			  ADD INDEX `hook` (`hook`),
 			  ADD INDEX `nextrun` (`nextrun`)";
 
 	$wpdb->query( $query );
