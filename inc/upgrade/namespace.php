@@ -1,9 +1,12 @@
 <?php
+/**
+ * phpcs:ignoreFile WordPress.DB.PreparedSQL.NotPrepared
+ */
 
 namespace HM\Cavalcade\Plugin\Upgrade;
 
-use HM\Cavalcade\Plugin as Cavalcade;
 use const HM\Cavalcade\Plugin\DATABASE_VERSION;
+use HM\Cavalcade\Plugin as Cavalcade;
 
 /**
  * Update the Cavalcade database version if required.
@@ -23,6 +26,10 @@ function upgrade_database() {
 
 	if ( $database_version < 2 ) {
 		upgrade_database_2();
+	}
+
+	if ( $database_version < 3 ) {
+		upgrade_database_3();
 	}
 
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
@@ -58,4 +65,20 @@ function upgrade_database_2() {
 			$wpdb->prepare( $query, $name, $interval )
 		);
 	}
+}
+
+/**
+ * Upgrade Cavalcade database tables to version 3.
+ *
+ * Add indexes required for pre-flight filters.
+ */
+function upgrade_database_3() {
+	global $wpdb;
+
+	$query = "ALTER TABLE `{$wpdb->base_prefix}cavalcade_jobs`
+			  ADD INDEX `site` (`site`),
+			  ADD INDEX `hook` (`hook`),
+			  ADD INDEX `nextrun` (`nextrun`)";
+
+	$wpdb->query( $query );
 }

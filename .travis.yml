@@ -1,10 +1,23 @@
 language: php
 php:
-  - '7.1'
+  - 7.1
+  - 7.2
+  - 7.3
+env:
+  - WP_VERSION=latest WP_MULTISITE=0
+  - WP_VERSION=latest WP_MULTISITE=1
+matrix:
+  include:
+    - php: 7.3
+      env: WP_VERSION=trunk WP_MULTISITE=0
+    - php: 7.3
+      env: WP_VERSION=trunk WP_MULTISITE=1
+services:
+  - mysql
 install:
   - composer install
-  - bash tests/install-tests.sh wordpress_test root '' 127.0.0.1 latest
+  - bash tests/install-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
 script:
-  - phpunit
+  - vendor/bin/phpunit --exclude-group cron
 notifications:
     email: false
