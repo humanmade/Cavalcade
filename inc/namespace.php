@@ -82,7 +82,10 @@ function create_tables() {
 		`schedule` varchar(255) DEFAULT NULL,
 
 		PRIMARY KEY (`id`),
-		KEY `status` (`status`)
+		KEY `status` (`status`),
+		KEY `site` (`site`),
+		KEY `hook` (`hook`),
+		KEY `nextrun` (`nextrun`)
 	) ENGINE=InnoDB {$charset_collate};\n";
 
 	// TODO: check return value

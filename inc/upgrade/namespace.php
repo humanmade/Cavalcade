@@ -29,6 +29,10 @@ function upgrade_database() {
 		upgrade_database_2();
 	}
 
+	if ( $database_version < 3 ) {
+		upgrade_database_3();
+	}
+
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
 
 	Job::flush_query_cache();
@@ -62,4 +66,20 @@ function upgrade_database_2() {
 			$wpdb->prepare( $query, $name, $interval )
 		);
 	}
+}
+
+/**
+ * Upgrade Cavalcade database tables to version 3.
+ *
+ * Add indexes required for pre-flight filters.
+ */
+function upgrade_database_3() {
+	global $wpdb;
+
+	$query = "ALTER TABLE `{$wpdb->base_prefix}cavalcade_jobs`
+			  ADD INDEX `site` (`site`),
+			  ADD INDEX `hook` (`hook`),
+			  ADD INDEX `nextrun` (`nextrun`)";
+
+	$wpdb->query( $query );
 }
