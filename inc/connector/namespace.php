@@ -211,10 +211,15 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
 		'hook' => $hook,
 		'args' => $args,
 		'limit' => 100,
+		'__raw' => true,
 	] );
 
 	if ( is_wp_error( $jobs ) ) {
 		return false;
+	}
+
+	if ( empty( $jobs ) ) {
+		return 0;
 	}
 
 	$ids = wp_list_pluck( $jobs, 'id' );

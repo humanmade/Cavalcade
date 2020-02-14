@@ -183,7 +183,6 @@ class Job {
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
 	 */
 	public static function get_by_site( $site, $include_completed = false, $include_failed = false, $exclude_future = false ) {
-		global $wpdb;
 
 		// Allow passing a site object in
 		if ( is_object( $site ) && isset( $site->blog_id ) ) {
@@ -194,23 +193,25 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
-		$statuses = [ 'waiting', 'running' ];
+		$args = [
+			'site' => $site,
+			'args' => null,
+			'statuses' => [ 'waiting', 'running' ],
+			'limit' => 0,
+			'__raw' => true,
+		];
+
 		if ( $include_completed ) {
-			$statuses[] = 'completed';
+			$args['statuses'][] = 'completed';
 		}
 		if ( $include_failed ) {
-			$statuses[] = 'failed';
+			$args['statuses'][] = 'failed';
+		}
+		if ( $exclude_future ) {
+			$args['timestamp'] = 'past';
 		}
 
-		$results = static::get_jobs_by_query(
-			[
-				'site' => $site,
-				'args' => null,
-				'statuses' => $statuses,
-				'limit' => 0,
-				'__raw' => true,
-			]
-		);
+		$results = static::get_jobs_by_query( $args );
 
 		if ( empty( $results ) ) {
 			return [];
