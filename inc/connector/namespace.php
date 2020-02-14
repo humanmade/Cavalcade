@@ -69,33 +69,25 @@ function pre_schedule_event( $pre, $event ) {
 	}
 
 	$jobs = Job::get_jobs_by_query( $query );
-	$existing = reset( $jobs );
+	if ( is_wp_error( $jobs ) ) {
+		return false;
+	}
 
-	if ( empty( $existing ) ) {
-		// The job does not exist.
+	// The job does not exist.
+	if ( empty( $jobs ) ) {
 		schedule_event( $event );
-
 		return true;
 	}
 
 	// The job exists.
-	if (
-		(
-			Cavalcade\get_database_version() >= 2 &&
-			$existing->schedule === $event->schedule
-		) &&
-		$existing->interval === null &&
-		! isset( $event->interval )
-	) {
+	$existing = $jobs[0];
+
+	$schedule_match = Cavalcade\get_database_version() >= 2 && $existing->schedule === $event->schedule;
+
+	if ( $schedule_match && $existing->interval === null && ! isset( $event->interval ) ) {
 		// Unchanged or duplicate single event.
 		return false;
-	} elseif (
-		(
-			Cavalcade\get_database_version() >= 2 &&
-			$existing->schedule === $event->schedule
-		) &&
-		$existing->interval === $event->interval
-	) {
+	} elseif ( $schedule_match && $existing->interval === $event->interval ) {
 		// Unchanged recurring event.
 		return false;
 	} else {
@@ -137,19 +129,18 @@ function pre_schedule_event( $pre, $event ) {
  */
 function pre_reschedule_event( $pre, $event ) {
 	// First check if the job exists already.
-	$job = Job::get_jobs_by_query(
-		[
-			'hook' => $event->hook,
-			'timestamp' => $event->timestamp,
-			'args' => $event->args,
-		]
-	);
+	$jobs = Job::get_jobs_by_query( [
+		'hook' => $event->hook,
+		'timestamp' => $event->timestamp,
+		'args' => $event->args,
+	] );
 
-	if ( empty( $job ) || empty ( reset( $job ) ) ) {
+	if ( is_wp_error( $jobs ) || empty( $jobs ) ) {
 		// The job does not exist.
 		return false;
 	}
-	$job = reset( $job );
+
+	$job = $jobs[0];
 
 	// Now we assume something is wrong (single job?) and fail to reschedule
 	if ( 0 === $event->interval && 0 === $job->interval ) {
@@ -175,25 +166,25 @@ function pre_reschedule_event( $pre, $event ) {
  * @param int       $timestamp Timestamp for when to run the event.
  * @param string    $hook      Action hook, the execution of which will be unscheduled.
  * @param array     $args      Arguments to pass to the hook's callback function.
- * @return null|bool True if event successfully scheduled. False for failure.
+ * @return null|bool True if event successfully unscheduled. False for failure.
  */
 function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
 	// First check if the job exists already.
-	$job = Job::get_jobs_by_query(
-		[
-			'hook' => $hook,
-			'timestamp' => $timestamp,
-			'args' => $args,
-		]
-	);
+	$jobs = Job::get_jobs_by_query( [
+		'hook' => $hook,
+		'timestamp' => $timestamp,
+		'args' => $args,
+	] );
 
-	if ( empty( $job ) || empty ( reset( $job ) ) ) {
+	if ( is_wp_error( $jobs ) || empty( $jobs ) ) {
 		// The job does not exist.
 		return false;
 	}
 
+	$job = $jobs[0];
+
 	// Delete it.
-	reset( $job )->delete();
+	$job->delete();
 
 	return true;
 }
@@ -216,17 +207,14 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
 */
 function pre_clear_scheduled_hook( $pre, $hook, $args ) {
 	// First check if the job exists already.
-	$jobs = Job::get_jobs_by_query(
-		[
-			'hook' => $hook,
-			'args' => $args,
-			'limit' => 100,
-		]
-	);
+	$jobs = Job::get_jobs_by_query( [
+		'hook' => $hook,
+		'args' => $args,
+		'limit' => 100,
+	] );
 
-	if ( empty( $jobs ) ) {
-		// No jobs to unschedule.
-		return 0;
+	if ( is_wp_error( $jobs ) ) {
+		return false;
 	}
 
 	$ids = wp_list_pluck( $jobs, 'id' );
@@ -247,9 +235,9 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
 
 	// Flush the caches.
 	Job::flush_query_cache();
-	array_walk( $ids, function( $id ) {
+	foreach ( $ids as $id ) {
 		wp_cache_delete( "job::{$id}", 'cavalcade-jobs' );
-	} );
+	}
 
 	return $results;
 }
@@ -288,29 +276,27 @@ function pre_unschedule_hook( $pre, $hook ) {
  * @return bool|object The event object. False if the event does not exist.
  */
 function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
-	$job = Job::get_jobs_by_query(
-		[
-			'hook' => $hook,
-			'timestamp' => $timestamp,
-			'args' => $args,
-		]
-	);
+	$jobs = Job::get_jobs_by_query( [
+		'hook' => $hook,
+		'timestamp' => $timestamp,
+		'args' => $args,
+	] );
 
-	if ( empty( $job ) ) {
+	if ( is_wp_error( $jobs ) || empty( $jobs ) ) {
 		return false;
 	}
 
-	$result = reset( $job );
+	$job = $jobs[0];
 
 	$value = (object) [
-		'hook'      => $result->hook,
-		'timestamp' => $result->nextrun,
-		'schedule'  => $result->schedule,
-		'args'      => $result->args,
+		'hook'      => $job->hook,
+		'timestamp' => $job->nextrun,
+		'schedule'  => $job->schedule,
+		'args'      => $job->args,
 	];
 
-	if ( isset( $result->interval ) ) {
-		$value->interval = (int) $result->interval;
+	if ( isset( $job->interval ) ) {
+		$value->interval = (int) $job->interval;
 	}
 
 	return $value;
@@ -327,12 +313,10 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
  * @return array Cron jobs ready to be run.
  */
 function pre_get_ready_cron_jobs( $pre ) {
-	$results = Job::get_jobs_by_query(
-		[
-			'timestamp' => 'past',
-			'limit' => 100,
-		]
-	);
+	$results = Job::get_jobs_by_query( [
+		'timestamp' => 'past',
+		'limit' => 100,
+	] );
 	$crons = [];
 
 	foreach ( $results as $result ) {
