@@ -257,6 +257,28 @@ class Job {
 
 		$args = wp_parse_args( $args, $defaults );
 
+		/**
+		 * Filters the get_jobs_by_query() arguments.
+		 *
+		 * An example use case would be to enforce limits on the number of results
+		 * returned if you run into performance problems.
+		 *
+		 * @param array $args {
+		 *     @param string           $hook      Jobs hook to return. Optional.
+		 *     @param int|string|array $timestamp Timestamp to search for. Optional.
+		 *                                        String shortcuts `future`: > NOW(); `past`: <= NOW()
+		 *                                        Array of 2 time stamps will search between those dates.
+		 *     @param array            $args      Cron job arguments.
+		 *     @param int|object       $site      Site to query. Default current site.
+		 *     @param array            $statuses  Job statuses to query. Default to waiting and running.
+		 *                                        Possible values are 'waiting', 'running', 'completed' and 'failed'.
+		 *     @param int              $limit     Max number of jobs to return. Default 1.
+		 *     @param string           $order     ASC or DESC. Default ASC.
+		 *     @param bool             $__raw     If true return the raw array of data rather than Job objects.
+		 * }
+		 */
+		$args = apply_filters( 'cavalcade.get_jobs_by_query.args', $args );
+
 		// Allow passing a site object in
 		if ( is_object( $args['site'] ) && isset( $args['site']->blog_id ) ) {
 			$args['site'] = $args['site']->blog_id;
@@ -274,23 +296,11 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_event_arguments' );
 		}
 
-		if ( ! is_numeric( $args['limit' ] ) ) {
+		if ( ! is_numeric( $args['limit'] ) ) {
 			return new WP_Error( 'cavalcade.job.invalid_limit' );
 		}
 
-		if ( $args['timestamp'] === 'future' ) {
-			$timestamp = time();
-			$timestamp_compare = '>';
-		} elseif ( $args['timestamp'] === 'past' ) {
-			$timestamp = time();
-			$timestamp_compare = '<=';
-		}
-
-		$args['limit' ] = absint( $args['limit' ] );
-
-		if ( $args['limit'] > 100 ) {
-			trigger_error( 'Exceeding recommended job search limit of 100' );
-		}
+		$args['limit'] = absint( $args['limit'] );
 
 		// Find all scheduled events for this site
 		$table = static::get_table();
@@ -308,25 +318,27 @@ class Job {
 			$sql_params[] = serialize( $args['args'] );
 		}
 
-		if (
-			! empty( $args['timestamp'] ) &&
-			in_array( $args['timestamp'], ['past', 'future'] ) &&
-			! empty( $timestamp ) &&
-			! empty( $timestamp_compare ) &&
-			in_array( $timestamp_compare, [ '<=', '<', '>', '>=', '=' ] )
-		) {
-			$sql .= " AND nextrun {$timestamp_compare} %s";
-			$sql_params[] = date( DATE_FORMAT, (int) $timestamp );
-		} elseif (
-			! empty( $args['timestamp'] ) &&
-			is_array( $args['timestamp'] ) &&
-			count( $args['timestamp'] ) === 2
-		) {
-			// It's a range.
+		// Timestamp 'future' shortcut.
+		if ( $args['timestamp'] === 'future' ) {
+			$sql .= " AND nextrun > %s";
+			$sql_params[] = date( DATE_FORMAT );
+		}
+
+		// Timestamp past shortcut.
+		if ( $args['timestamp'] === 'past' ) {
+			$sql .= " AND nextrun <= %s";
+			$sql_params[] = date( DATE_FORMAT );
+		}
+
+		// Timestamp array range.
+		if ( is_array( $args['timestamp'] ) && count( $args['timestamp'] ) === 2 ) {
 			$sql .= ' AND nextrun BETWEEN %s AND %s';
 			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][0] );
 			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][1] );
-		} elseif ( ! empty( $args['timestamp'] ) ) {
+		}
+
+		// Default integer timestamp.
+		if ( is_int( $args['timestamp'] ) ) {
 			$sql .= ' AND nextrun = %s';
 			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'] );
 		}
@@ -348,7 +360,7 @@ class Job {
 
 		// Cache results.
 		$last_changed = wp_cache_get_last_changed( 'cavalcade-jobs' );
-		$query_hash = md5( serialize( [ $sql, $sql_params ] ) ) . "::{$last_changed}";
+		$query_hash = sha1( serialize( [ $sql, $sql_params ] ) ) . "::{$last_changed}";
 		$found = null;
 		$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-jobs', true, $found );
 
