@@ -16,13 +16,13 @@ function bootstrap() {
 	add_filter( 'pre_option_cron', __NAMESPACE__ . '\\get_cron_array' );
 
 	// Filters introduced in WP 5.1.
-	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 2 );
-	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\\pre_reschedule_event', 10, 2 );
-	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
-	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
-	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 2 );
-	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\\pre_get_scheduled_event', 10, 4 );
-	add_filter( 'pre_get_ready_cron_jobs', __NAMESPACE__ . '\\pre_get_ready_cron_jobs' );
+	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 11, 2 );
+	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\\pre_reschedule_event', 11, 2 );
+	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 11, 4 );
+	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 11, 3 );
+	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 11, 2 );
+	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\\pre_get_scheduled_event', 11, 4 );
+	add_filter( 'pre_get_ready_cron_jobs', __NAMESPACE__ . '\\pre_get_ready_cron_jobs', 11 );
 }
 
 /**
@@ -41,6 +41,11 @@ function bootstrap() {
  * @return null|bool True if event successfully scheduled. False for failure.
  */
 function pre_schedule_event( $pre, $event ) {
+	// Allow other filters to do their thing.
+	if ( $pre !== null ) {
+		return $pre;
+	}
+
 	// First check if the job exists already.
 	$query = [
 		'hook' => $event->hook,
@@ -136,6 +141,11 @@ function pre_schedule_event( $pre, $event ) {
  * @return bool True if event successfully rescheduled. False for failure.
  */
 function pre_reschedule_event( $pre, $event ) {
+	// Allow other filters to do their thing.
+	if ( $pre !== null ) {
+		return $pre;
+	}
+
 	// First check if the job exists already.
 	$jobs = Job::get_jobs_by_query( [
 		'hook' => $event->hook,
@@ -177,6 +187,11 @@ function pre_reschedule_event( $pre, $event ) {
  * @return null|bool True if event successfully unscheduled. False for failure.
  */
 function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
+	// Allow other filters to do their thing.
+	if ( $pre !== null ) {
+		return $pre;
+	}
+
 	// First check if the job exists already.
 	$jobs = Job::get_jobs_by_query( [
 		'hook' => $hook,
@@ -214,6 +229,11 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
  *                   unscheduling one or more events fail.
 */
 function pre_clear_scheduled_hook( $pre, $hook, $args ) {
+	// Allow other filters to do their thing.
+	if ( $pre !== null ) {
+		return $pre;
+	}
+
 	// First check if the job exists already.
 	$jobs = Job::get_jobs_by_query( [
 		'hook' => $hook,
@@ -289,6 +309,11 @@ function pre_unschedule_hook( $pre, $hook ) {
  * @return bool|object The event object. False if the event does not exist.
  */
 function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
+	// Allow other filters to do their thing.
+	if ( $pre !== null ) {
+		return $pre;
+	}
+
 	$jobs = Job::get_jobs_by_query( [
 		'hook' => $hook,
 		'timestamp' => $timestamp,
@@ -326,6 +351,11 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
  * @return array Cron jobs ready to be run.
  */
 function pre_get_ready_cron_jobs( $pre ) {
+	// Allow other filters to do their thing.
+	if ( $pre !== null ) {
+		return $pre;
+	}
+
 	$results = Job::get_jobs_by_query( [
 		'timestamp' => 'past',
 		'limit' => 100,
