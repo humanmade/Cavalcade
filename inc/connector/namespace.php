@@ -75,6 +75,14 @@ function pre_schedule_event( $pre, $event ) {
 
 	// The job does not exist.
 	if ( empty( $jobs ) ) {
+		/** This filter is documented in wordpress/wp-includes/cron.php */
+		$event = apply_filters( 'schedule_event', $event );
+
+		// A plugin disallowed this event.
+		if ( ! $event ) {
+			return false;
+		}
+
 		schedule_event( $event );
 		return true;
 	}
