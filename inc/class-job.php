@@ -58,8 +58,6 @@ class Job {
 			}
 		}
 
-		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
-
 		if ( $this->is_created() ) {
 			$where = [
 				'id' => $this->id,
@@ -69,6 +67,9 @@ class Job {
 			$result = $wpdb->insert( $this->get_table(), $data, $this->row_format( $data ) );
 			$this->id = $wpdb->insert_id;
 		}
+
+		self::flush_query_cache();
+		wp_cache_set( "job::{$this->id}", $this, 'cavalcade-jobs' );
 	}
 
 	public function delete( $options = [] ) {
@@ -89,13 +90,13 @@ class Job {
 		];
 		$result = $wpdb->delete( $this->get_table(), $where, $this->row_format( $where ) );
 
-		wp_cache_delete( 'jobs', 'cavalcade-jobs' );
+		self::flush_query_cache();
+		wp_cache_delete( "job::{$this->id}", 'cavalcade-jobs' );
 
 		return (bool) $result;
-
 	}
 
-	protected static function get_table() {
+	public static function get_table() {
 		global $wpdb;
 		return $wpdb->base_prefix . 'cavalcade_jobs';
 	}
@@ -127,6 +128,7 @@ class Job {
 			$job->schedule = get_schedule_by_interval( $row->interval );
 		}
 
+		wp_cache_set( "job::{$job->id}", $job, 'cavalcade-jobs' );
 		return $job;
 	}
 
@@ -155,6 +157,11 @@ class Job {
 
 		$job = absint( $job );
 
+		$cached_job = wp_cache_get( "job::{$job}", 'cavalcade-jobs' );
+		if ( $cached_job ) {
+			return $cached_job;
+		}
+
 		$suppress = $wpdb->suppress_errors();
 		$job = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . static::get_table() . ' WHERE id = %d', $job ) );
 		$wpdb->suppress_errors( $suppress );
@@ -172,10 +179,10 @@ class Job {
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
 	 * @param bool $include_completed Should we include completed jobs?
 	 * @param bool $include_failed Should we include failed jobs?
+	 * @param bool $exclude_future Should we exclude future (not ready) jobs?
 	 * @return Job[]|WP_Error Jobs on success, error otherwise.
 	 */
-	public static function get_by_site( $site, $include_completed = false, $include_failed = false ) {
-		global $wpdb;
+	public static function get_by_site( $site, $include_completed = false, $include_failed = false, $exclude_future = false ) {
 
 		// Allow passing a site object in
 		if ( is_object( $site ) && isset( $site->blog_id ) ) {
@@ -186,37 +193,196 @@ class Job {
 			return new WP_Error( 'cavalcade.job.invalid_site_id' );
 		}
 
-		if ( ! $include_completed && ! $include_failed ) {
-			$results = wp_cache_get( 'jobs', 'cavalcade-jobs' );
+		$args = [
+			'site' => $site,
+			'args' => null,
+			'statuses' => [ 'waiting', 'running' ],
+			'limit' => 0,
+			'__raw' => true,
+		];
+
+		if ( $include_completed ) {
+			$args['statuses'][] = 'completed';
+		}
+		if ( $include_failed ) {
+			$args['statuses'][] = 'failed';
+		}
+		if ( $exclude_future ) {
+			$args['timestamp'] = 'past';
 		}
 
-		if ( isset( $results ) && ! $results ) {
-			$statuses = [ 'waiting', 'running' ];
-			if ( $include_completed ) {
-				$statuses[] = 'completed';
-			}
-			if ( $include_failed ) {
-				$statuses[] = 'failed';
-			}
-
-			// Find all scheduled events for this site
-			$table = static::get_table();
-
-			$sql = "SELECT * FROM `{$table}` WHERE site = %d";
-			$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ')';
-			$query = $wpdb->prepare( $sql, array_merge( [ $site ], $statuses ) );
-			$results = $wpdb->get_results( $query );
-
-			if ( ! $include_completed && ! $include_failed ) {
-				wp_cache_set( 'jobs', $results, 'cavalcade-jobs' );
-			}
-		}
+		$results = static::get_jobs_by_query( $args );
 
 		if ( empty( $results ) ) {
 			return [];
 		}
 
 		return static::to_instances( $results );
+	}
+
+	/**
+	 * Query jobs database.
+	 *
+	 * Returns an array of Job instances for the current site based
+	 * on the paramaters.
+	 *
+	 * @todo: allow searching within time window for duplicate events.
+	 *
+	 * @param array|\stdClass $args {
+	 *     @param string          $hook      Jobs hook to return. Optional.
+	 *     @param int|string|null $timestamp Timestamp to search for. Optional.
+	 *                                       String shortcuts `future`: > NOW(); `past`: <= NOW()
+	 *     @param array           $args      Cron job arguments.
+	 *     @param int|object      $site      Site to query. Default current site.
+	 *     @param array           $statuses  Job statuses to query. Default to waiting and running.
+	 *     @param int             $limit     Max number of jobs to return. Default 1.
+	 *     @param string          $order     ASC or DESC. Default ASC.
+	 * }
+	 * @return Job[]|WP_Error Jobs on success, error otherwise.
+	 */
+	public static function get_jobs_by_query( $args = [] ) {
+		global $wpdb;
+		$args = (array) $args;
+		$results = [];
+
+		$defaults = [
+			'timestamp' => null,
+			'hook' => null,
+			'args' => [],
+			'site' => get_current_blog_id(),
+			'statuses' => [ 'waiting', 'running' ],
+			'limit' => 1,
+			'order' => 'ASC',
+			'__raw' => false,
+		];
+
+		$args = wp_parse_args( $args, $defaults );
+
+		/**
+		 * Filters the get_jobs_by_query() arguments.
+		 *
+		 * An example use case would be to enforce limits on the number of results
+		 * returned if you run into performance problems.
+		 *
+		 * @param array $args {
+		 *     @param string           $hook      Jobs hook to return. Optional.
+		 *     @param int|string|array $timestamp Timestamp to search for. Optional.
+		 *                                        String shortcuts `future`: > NOW(); `past`: <= NOW()
+		 *                                        Array of 2 time stamps will search between those dates.
+		 *     @param array            $args      Cron job arguments.
+		 *     @param int|object       $site      Site to query. Default current site.
+		 *     @param array            $statuses  Job statuses to query. Default to waiting and running.
+		 *                                        Possible values are 'waiting', 'running', 'completed' and 'failed'.
+		 *     @param int              $limit     Max number of jobs to return. Default 1.
+		 *     @param string           $order     ASC or DESC. Default ASC.
+		 *     @param bool             $__raw     If true return the raw array of data rather than Job objects.
+		 * }
+		 */
+		$args = apply_filters( 'cavalcade.get_jobs_by_query.args', $args );
+
+		// Allow passing a site object in
+		if ( is_object( $args['site'] ) && isset( $args['site']->blog_id ) ) {
+			$args['site'] = $args['site']->blog_id;
+		}
+
+		if ( ! is_numeric( $args['site'] ) ) {
+			return new WP_Error( 'cavalcade.job.invalid_site_id' );
+		}
+
+		if ( ! empty( $args['hook'] ) && ! is_string( $args['hook'] ) ) {
+			return new WP_Error( 'cavalcade.job.invalid_hook_name' );
+		}
+
+		if ( ! is_array( $args['args'] ) && ! is_null( $args['args'] ) ) {
+			return new WP_Error( 'cavalcade.job.invalid_event_arguments' );
+		}
+
+		if ( ! is_numeric( $args['limit'] ) ) {
+			return new WP_Error( 'cavalcade.job.invalid_limit' );
+		}
+
+		$args['limit'] = absint( $args['limit'] );
+
+		// Find all scheduled events for this site
+		$table = static::get_table();
+
+		$sql = "SELECT * FROM `{$table}` WHERE site = %d";
+		$sql_params[] = $args['site'];
+
+		if ( is_string( $args['hook'] ) ) {
+			$sql .= ' AND hook = %s';
+			$sql_params[] = $args['hook'];
+		}
+
+		if ( ! is_null( $args['args'] ) ) {
+			$sql .= ' AND args = %s';
+			$sql_params[] = serialize( $args['args'] );
+		}
+
+		// Timestamp 'future' shortcut.
+		if ( $args['timestamp'] === 'future' ) {
+			$sql .= " AND nextrun > %s";
+			$sql_params[] = date( DATE_FORMAT );
+		}
+
+		// Timestamp past shortcut.
+		if ( $args['timestamp'] === 'past' ) {
+			$sql .= " AND nextrun <= %s";
+			$sql_params[] = date( DATE_FORMAT );
+		}
+
+		// Timestamp array range.
+		if ( is_array( $args['timestamp'] ) && count( $args['timestamp'] ) === 2 ) {
+			$sql .= ' AND nextrun BETWEEN %s AND %s';
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][0] );
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][1] );
+		}
+
+		// Default integer timestamp.
+		if ( is_int( $args['timestamp'] ) ) {
+			$sql .= ' AND nextrun = %s';
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'] );
+		}
+
+		$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $args['statuses'] ), '%s' ) ) . ')';
+		$sql_params = array_merge( $sql_params, $args['statuses'] );
+
+		$sql .= ' ORDER BY nextrun';
+		if ( $args['order'] === 'DESC' ) {
+			$sql .= ' DESC';
+		} else {
+			$sql .= ' ASC';
+		}
+
+		if ( $args['limit'] > 0 ) {
+			$sql .= ' LIMIT %d';
+			$sql_params[] = $args['limit'];
+		}
+
+		// Cache results.
+		$last_changed = wp_cache_get_last_changed( 'cavalcade-jobs' );
+		$query_hash = sha1( serialize( [ $sql, $sql_params ] ) ) . "::{$last_changed}";
+		$found = null;
+		$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-jobs', true, $found );
+
+		if ( ! $found ) {
+			$query = $wpdb->prepare( $sql, $sql_params );
+			$results = $wpdb->get_results( $query );
+			wp_cache_set( "jobs::{$query_hash}", $results, 'cavalcade-jobs' );
+		}
+
+		if ( $args['__raw'] === true ) {
+			return $results;
+		}
+
+		return static::to_instances( $results );
+	}
+
+	/**
+	 * Invalidates existing query cache keys by updating last changed time.
+	 */
+	public static function flush_query_cache() {
+		wp_cache_set( 'last_changed', microtime(), 'cavalcade-jobs' );
 	}
 
 	/**

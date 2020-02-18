@@ -18,6 +18,7 @@ install:
   - composer install
   - bash tests/install-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
 script:
-  - vendor/bin/phpunit --exclude-group cron
+  # 32656 tests are related to the pre_*_event filters which we're using already
+  - vendor/bin/phpunit --exclude-group 32656
 notifications:
     email: false
