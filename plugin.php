@@ -5,7 +5,7 @@
  * Description: A better wp-cron. Horizontally scalable, works perfectly with multisite.
  * Author: Human Made
  * Author URI: https://hmn.md/
- * Version: 1.0.0
+ * Version: 2.0.0
  * License: GPLv2 or later
  */
 
