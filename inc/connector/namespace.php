@@ -16,13 +16,13 @@ function bootstrap() {
 	add_filter( 'pre_option_cron', __NAMESPACE__ . '\\get_cron_array' );
 
 	// Filters introduced in WP 5.1.
-	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 11, 2 );
-	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\\pre_reschedule_event', 11, 2 );
-	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 11, 4 );
-	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 11, 3 );
-	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 11, 2 );
-	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\\pre_get_scheduled_event', 11, 4 );
-	add_filter( 'pre_get_ready_cron_jobs', __NAMESPACE__ . '\\pre_get_ready_cron_jobs', 11 );
+	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 2 );
+	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\\pre_reschedule_event', 10, 2 );
+	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
+	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
+	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 2 );
+	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\\pre_get_scheduled_event', 10, 4 );
+	add_filter( 'pre_get_ready_cron_jobs', __NAMESPACE__ . '\\pre_get_ready_cron_jobs' );
 }
 
 /**
