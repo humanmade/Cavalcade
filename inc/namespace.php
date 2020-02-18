@@ -13,9 +13,14 @@ use WP_CLI;
 function bootstrap() {
 	register_cache_groups();
 
-	if ( ! is_installed() ) {
-		create_tables();
+	if ( ! is_installed() && ! create_tables() ) {
+		add_action( 'wp_install', __NAMESPACE__ . '\\bootstrap' );
+		return;
 	}
+
+	register_cli_commands();
+	maybe_populate_site_option();
+	Connector\bootstrap();
 }
 
 /**
@@ -64,6 +69,11 @@ function is_installed() {
 }
 
 function create_tables() {
+	if ( ! is_blog_installed() ) {
+		// Do not create tables before blog is installed.
+		return false;
+	}
+
 	global $wpdb;
 
 	$charset_collate = $wpdb->get_charset_collate();
@@ -104,7 +114,43 @@ function create_tables() {
 
 	$wpdb->query( $query );
 
+	wp_cache_set( 'installed', true, 'cavalcade' );
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
+
+	/**
+	 * Ensure site meta is populated when running the WP CLI script to
+	 * install a network. Using the CLI, WP installs a single site with
+	 * wp_install() and then upgrades it to a multiste install immediately.
+	 *
+	 * Note: This does not work for multisite manual installs.
+	 */
+	add_filter( 'populate_network_meta', function ( $site_meta ) {
+		$site_meta['cavalcade_db_version'] = DATABASE_VERSION;
+		return $site_meta;
+	} );
+	return true;
+}
+
+/**
+ * Populate the Cavalcade db version when upgrading to multisite.
+ *
+ * This ensures the database option is copied from the options table
+ * accross to the sitemeta table when WordPress is upgraded from
+ * a single site install to a multisite install.
+ */
+function maybe_populate_site_option() {
+	if ( is_multisite() ) {
+		return;
+	}
+
+	$cavalcade_db_version = get_option( 'cavalcade_db_version' );
+
+	$set_site_meta = function ( $site_meta ) use ( $cavalcade_db_version ) {
+		$site_meta['cavalcade_db_version'] = $cavalcade_db_version;
+		return $site_meta;
+	};
+
+	add_filter( 'populate_network_meta', $set_site_meta );
 }
 
 /**
