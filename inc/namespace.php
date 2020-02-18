@@ -70,7 +70,7 @@ function is_installed() {
 
 function create_tables() {
 	if ( ! is_blog_installed() ) {
-		// Do not create tables before blog is is installed.
+		// Do not create tables before blog is installed.
 		return false;
 	}
 
