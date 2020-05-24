@@ -1,6 +1,6 @@
 <?php
 /**
- * phpcs:ignoreFile WordPress.DB.PreparedSQL.NotPrepared
+ * phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
  */
 
 namespace HM\Cavalcade\Plugin;
