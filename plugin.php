@@ -19,7 +19,7 @@ require __DIR__ . '/inc/class-job.php';
 require __DIR__ . '/inc/connector/namespace.php';
 require __DIR__ . '/inc/upgrade/namespace.php';
 
-add_action( 'plugins_loaded', __NAMESPACE__ . '\\bootstrap' );
+bootstrap();
 
 // Register cache groups as early as possible, as some plugins may use cron functions before plugins_loaded
 if ( function_exists( 'wp_cache_add_global_groups' ) ) {
