@@ -366,14 +366,14 @@ function pre_get_ready_cron_jobs( $pre ) {
 		$timestamp = $result->nextrun;
 		$hook = $result->hook;
 		$key = md5( serialize( $result->args ) );
-		$value = (object) [
+		$value = [
 			'schedule'  => $result->schedule,
 			'args'      => $result->args,
 			'_job'      => $result,
 		];
 
 		if ( isset( $result->interval ) ) {
-			$value->interval = (int) $result->interval;
+			$value['interval'] = (int) $result->interval;
 		}
 
 		// Build the array up.
