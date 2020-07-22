@@ -362,10 +362,9 @@ class Job {
 		// Cache results.
 		$last_changed = wp_cache_get_last_changed( 'cavalcade-jobs' );
 		$query_hash = sha1( serialize( [ $sql, $sql_params ] ) ) . "::{$last_changed}";
-		$found = null;
-		$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-jobs', true, $found );
+		$results = wp_cache_get( "jobs::{$query_hash}", 'cavalcade-jobs' );
 
-		if ( ! $found ) {
+		if ( false === $results ) {
 			$query = $wpdb->prepare( $sql, $sql_params );
 			$results = $wpdb->get_results( $query );
 			wp_cache_set( "jobs::{$query_hash}", $results, 'cavalcade-jobs' );
