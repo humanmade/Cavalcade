@@ -143,10 +143,8 @@ function maybe_populate_site_option() {
 		return;
 	}
 
-	$cavalcade_db_version = get_option( 'cavalcade_db_version' );
-
-	$set_site_meta = function ( $site_meta ) use ( $cavalcade_db_version ) {
-		$site_meta['cavalcade_db_version'] = $cavalcade_db_version;
+	$set_site_meta = function ( $site_meta ) {
+		$site_meta['cavalcade_db_version'] = get_option( 'cavalcade_db_version' );
 		return $site_meta;
 	};
 
