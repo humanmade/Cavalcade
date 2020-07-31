@@ -2,6 +2,8 @@
 /**
  * Bootstrap the plugin unit testing environment.
  *
+ * phpcs:disable PSR1.Files.SideEffects
+ *
  * @package WordPress
 */
 
