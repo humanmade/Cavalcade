@@ -94,8 +94,7 @@ function create_tables() {
 		PRIMARY KEY (`id`),
 		KEY `status` (`status`),
 		KEY `site` (`site`),
-		KEY `hook` (`hook`),
-		KEY `nextrun` (`nextrun`)
+		KEY `hook` (`hook`)
 	) ENGINE=InnoDB {$charset_collate};\n";
 
 	// TODO: check return value
