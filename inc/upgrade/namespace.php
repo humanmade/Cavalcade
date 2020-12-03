@@ -33,6 +33,10 @@ function upgrade_database() {
 		upgrade_database_3();
 	}
 
+	if ( $database_version < 4 ) {
+		upgrade_database_4();
+	}
+
 	update_site_option( 'cavalcade_db_version', DATABASE_VERSION );
 
 	Job::flush_query_cache();
@@ -78,8 +82,21 @@ function upgrade_database_3() {
 
 	$query = "ALTER TABLE `{$wpdb->base_prefix}cavalcade_jobs`
 			  ADD INDEX `site` (`site`),
-			  ADD INDEX `hook` (`hook`),
-			  ADD INDEX `nextrun` (`nextrun`)";
+			  ADD INDEX `hook` (`hook`)";
+
+	$wpdb->query( $query );
+}
+
+/**
+ * Upgrade Cavalcade database tables to version 4.
+ *
+ * Remove nextrun index as it negatively affects performance.
+ */
+function upgrade_database_4() {
+	global $wpdb;
+
+	$query = "ALTER TABLE `{$wpdb->base_prefix}cavalcade_jobs`
+			  DROP INDEX `nextrun`";
 
 	$wpdb->query( $query );
 }
