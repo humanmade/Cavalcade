@@ -332,42 +332,40 @@ class Job {
 		}
 
 		// Filter results array.
-		if ( is_string( $args['hook'] ) ) {
-			$results = wp_list_filter( $results, [ 'hook' => $args['hook'] ] );
-		}
+		$results = array_filter( $results, function ( $event ) use ( $args ) : bool {
+			if ( is_string( $args['hook'] ) && $event['hook'] !== $args['hook'] ) {
+				return false;
+			}
 
-		if ( ! is_null( $args['args'] ) ) {
-			$results = wp_list_filter( $results, [ 'args' => serialize( $args['args'] ) ] );
-		}
+			if ( ! is_null( $args['args'] ) && $event['args'] !== serialize( $args['args'] ) ) {
+				return false;
+			}
 
-		// Timestamp 'future' shortcut.
-		if ( $args['timestamp'] === 'future' ) {
-			$results = array_filter( $results, function ( $event ) {
+			// Timestamp 'future' shortcut.
+			if ( $args['timestamp'] === 'future' ) {
 				return $event['nextrun'] > date( DATE_FORMAT );
-			} );
-		}
+			}
 
-		// Timestamp past shortcut.
-		if ( $args['timestamp'] === 'past' ) {
-			$results = array_filter( $results, function ( $event ) {
+			// Timestamp past shortcut.
+			if ( $args['timestamp'] === 'past' ) {
 				return $event['nextrun'] <= date( DATE_FORMAT );
-			} );
-		}
+			}
 
-		// Timestamp array range.
-		if ( is_array( $args['timestamp'] ) && count( $args['timestamp'] ) === 2 ) {
-			$results = array_filter( $results, function ( $event ) use ( $args ) {
+			// Timestamp array range.
+			if ( is_array( $args['timestamp'] ) && count( $args['timestamp'] ) === 2 ) {
 				return (
 					$event['nextrun'] > date( DATE_FORMAT, (int) $args['timestamp'][0] )
 					&& $event['nextrun'] <= date( DATE_FORMAT, (int) $args['timestamp'][1] )
 				);
-			} );
-		}
+			}
 
-		// Default integer timestamp.
-		if ( is_int( $args['timestamp'] ) ) {
-			$results = wp_list_filter( $results, [ 'timestamp' => date( DATE_FORMAT, (int) $args['timestamp'] ) ] );
-		}
+			// Default integer timestamp.
+			if ( is_int( $args['timestamp'] ) ) {
+				return 'timestamp' === date( DATE_FORMAT, (int) $args['timestamp'] );
+			}
+
+			return true;
+		} );
 
 		// Limit results.
 		if ( $args['limit'] > 0 ) {
