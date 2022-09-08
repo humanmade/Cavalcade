@@ -15,7 +15,8 @@
 	},
 	"require-dev": {
 		"humanmade/coding-standards": "dev-master",
-		"phpunit/phpunit": "^7.1"
+		"phpunit/phpunit": "^7.1",
+		"yoast/phpunit-polyfills": "^1.0"
 	},
 	"config": {
 		"allow-plugins": {
