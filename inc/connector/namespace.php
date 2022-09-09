@@ -7,6 +7,7 @@ namespace HM\Cavalcade\Plugin\Connector;
 
 use HM\Cavalcade\Plugin as Cavalcade;
 use HM\Cavalcade\Plugin\Job;
+use WP_Error;
 
 /**
  * Register hooks for WordPress.
@@ -16,11 +17,11 @@ function bootstrap() {
 	add_filter( 'pre_option_cron', __NAMESPACE__ . '\\get_cron_array' );
 
 	// Filters introduced in WP 5.1.
-	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 2 );
-	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\\pre_reschedule_event', 10, 2 );
-	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 4 );
-	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 3 );
-	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 2 );
+	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\\pre_schedule_event', 10, 3 );
+	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\\pre_reschedule_event', 10, 3 );
+	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\\pre_unschedule_event', 10, 5 );
+	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\\pre_clear_scheduled_hook', 10, 4 );
+	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\\pre_unschedule_hook', 10, 3 );
 	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\\pre_get_scheduled_event', 10, 4 );
 	add_filter( 'pre_get_ready_cron_jobs', __NAMESPACE__ . '\\pre_get_ready_cron_jobs' );
 }
@@ -28,8 +29,8 @@ function bootstrap() {
 /**
  * Schedule an event with Cavalcade.
  *
- * @param null|bool $pre   Value to return instead. Default null to continue adding the event.
- * @param stdClass  $event {
+ * @param null|bool $pre Value to return instead. Default null to continue adding the event.
+ * @param stdClass $event {
  *     An object containing an event's data.
  *
  *     @type string       $hook      Action hook to execute when the event is run.
@@ -38,9 +39,10 @@ function bootstrap() {
  *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
  *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
  * }
- * @return null|bool True if event successfully scheduled. False for failure.
+ * @param bool $wp_error If true returns a WP_Error instead of false.
+ * @return null|bool|WP_Error True if event successfully scheduled. False for failure.
  */
-function pre_schedule_event( $pre, $event ) {
+function pre_schedule_event( $pre, $event, $wp_error = false ) {
 	// Allow other filters to do their thing.
 	if ( $pre !== null ) {
 		return $pre;
@@ -75,6 +77,10 @@ function pre_schedule_event( $pre, $event ) {
 
 	$jobs = Job::get_jobs_by_query( $query );
 	if ( is_wp_error( $jobs ) ) {
+		if ( $wp_error ) {
+			return $jobs;
+		}
+
 		return false;
 	}
 
@@ -85,11 +91,16 @@ function pre_schedule_event( $pre, $event ) {
 
 		// A plugin disallowed this event.
 		if ( ! $event ) {
+			if ( $wp_error ) {
+				return new WP_Error(
+					'schedule_event_false',
+					__( 'A plugin disallowed this event.' )
+				);
+			}
 			return false;
 		}
 
-		schedule_event( $event );
-		return true;
+		return schedule_event( $event, $wp_error );
 	}
 
 	// The job exists.
@@ -99,9 +110,21 @@ function pre_schedule_event( $pre, $event ) {
 
 	if ( $schedule_match && $existing->interval === null && ! isset( $event->interval ) ) {
 		// Unchanged or duplicate single event.
+		if ( $wp_error ) {
+			return new WP_Error(
+				'duplicate_event',
+				__( 'A duplicate event already exists.' )
+			);
+		}
 		return false;
 	} elseif ( $schedule_match && $existing->interval === $event->interval ) {
 		// Unchanged recurring event.
+		if ( $wp_error ) {
+			return new WP_Error(
+				'unchanged_recurring_event',
+				__( 'A recurring event already exists.' )
+			);
+		}
 		return false;
 	} else {
 		// Event has changed. Update it.
@@ -138,12 +161,26 @@ function pre_schedule_event( $pre, $event ) {
  *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
  *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
  * }
+ * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
  * @return bool True if event successfully rescheduled. False for failure.
  */
-function pre_reschedule_event( $pre, $event ) {
+function pre_reschedule_event( $pre, $event, $wp_error = false ) {
 	// Allow other filters to do their thing.
 	if ( $pre !== null ) {
 		return $pre;
+	}
+
+	$schedules = wp_get_schedules();
+
+	if ( ! isset( $schedules[ $event->schedule ] ) ) {
+		if ( $wp_error ) {
+			return new WP_Error(
+				'invalid_schedule',
+				__( 'Event schedule does not exist.' )
+			);
+		}
+
+		return false;
 	}
 
 	// First check if the job exists already.
@@ -155,6 +192,15 @@ function pre_reschedule_event( $pre, $event ) {
 
 	if ( is_wp_error( $jobs ) || empty( $jobs ) ) {
 		// The job does not exist.
+		if ( $wp_error ) {
+			if ( ! is_wp_error( $jobs ) ) {
+				$jobs = new WP_Error(
+					'schedule_event_false',
+					__( 'A plugin disallowed this event.' )
+				);
+			}
+			return $jobs;
+		}
 		return false;
 	}
 
@@ -162,6 +208,12 @@ function pre_reschedule_event( $pre, $event ) {
 
 	// Now we assume something is wrong (single job?) and fail to reschedule
 	if ( 0 === $event->interval && 0 === $job->interval ) {
+		if ( $wp_error ) {
+			return new WP_Error(
+				'invalid_schedule',
+				__( 'Event schedule does not exist.' )
+			);
+		}
 		return false;
 	}
 
@@ -184,9 +236,10 @@ function pre_reschedule_event( $pre, $event ) {
  * @param int       $timestamp Timestamp for when to run the event.
  * @param string    $hook      Action hook, the execution of which will be unscheduled.
  * @param array     $args      Arguments to pass to the hook's callback function.
+ * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
  * @return null|bool True if event successfully unscheduled. False for failure.
  */
-function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
+function pre_unschedule_event( $pre, $timestamp, $hook, $args, $wp_error = false ) {
 	// Allow other filters to do their thing.
 	if ( $pre !== null ) {
 		return $pre;
@@ -201,6 +254,15 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
 
 	if ( is_wp_error( $jobs ) || empty( $jobs ) ) {
 		// The job does not exist.
+		if ( $wp_error ) {
+			if ( ! is_wp_error( $jobs ) ) {
+				$jobs = new WP_Error(
+					'invalid_event',
+					__( 'Event does not exist.' )
+				);
+			}
+			return $jobs;
+		}
 		return false;
 	}
 
@@ -224,11 +286,12 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args ) {
  * @param string     $hook Action hook, the execution of which will be unscheduled.
  * @param array|null $args Arguments to pass to the hook's callback function, null to clear all
  *                         events regardless of arugments.
+ * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
  * @return bool|int  On success an integer indicating number of events unscheduled (0 indicates no
  *                   events were registered with the hook and arguments combination), false if
  *                   unscheduling one or more events fail.
 */
-function pre_clear_scheduled_hook( $pre, $hook, $args ) {
+function pre_clear_scheduled_hook( $pre, $hook, $args, $wp_error = false ) {
 	// Allow other filters to do their thing.
 	if ( $pre !== null ) {
 		return $pre;
@@ -243,6 +306,9 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
 	] );
 
 	if ( is_wp_error( $jobs ) ) {
+		if ( $wp_error ) {
+			return $jobs;
+		}
 		return false;
 	}
 
@@ -287,11 +353,12 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
  *
  * @param null|array $pre  Value to return instead. Default null to continue unscheduling the hook.
  * @param string     $hook Action hook, the execution of which will be unscheduled.
+ * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
  * @return bool|int On success an integer indicating number of events unscheduled (0 indicates no
  *                  events were registered on the hook), false if unscheduling fails.
  */
-function pre_unschedule_hook( $pre, $hook ) {
-	return pre_clear_scheduled_hook( $pre, $hook, null );
+function pre_unschedule_hook( $pre, $hook, $wp_error = false ) {
+	return pre_clear_scheduled_hook( $pre, $hook, null, $wp_error );
 }
 
 /**
@@ -406,13 +473,24 @@ function pre_get_ready_cron_jobs( $pre ) {
  *     @param string|bool $schedule How often the event should occur (key from {@see wp_get_schedules})
  *     @param int|null $interval Time in seconds between events (derived from `$schedule` value)
  * }
+ * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
  * @return stdClass Event object passed in (as we aren't hijacking it)
  */
-function schedule_event( $event ) {
-	global $wpdb;
+function schedule_event( $event, $wp_error = false ) {
+	// Make sure timestamp is a positive integer.
+	if ( ! is_numeric( $event->timestamp ) || $event->timestamp <= 0 ) {
+		if ( $wp_error ) {
+			return new WP_Error(
+				'invalid_timestamp',
+				__( 'Event timestamp must be a valid Unix timestamp.' )
+			);
+		}
+
+		return false;
+	}
 
 	if ( ! empty( $event->schedule ) ) {
-		return schedule_recurring_event( $event );
+		return schedule_recurring_event( $event, $wp_error );
 	}
 
 	$job = new Job();
@@ -422,14 +500,41 @@ function schedule_event( $event ) {
 	$job->start = $job->nextrun;
 	$job->args = $event->args;
 
-	$job->save();
+	$result = $job->save();
+	if ( ! $result && $wp_error ) {
+		return new WP_Error(
+			'could_not_set',
+			__( 'The cron event list could not be saved.' )
+		);
+	}
+	return $result;
 }
 
-function schedule_recurring_event( $event ) {
-	global $wpdb;
+function schedule_recurring_event( $event, $wp_error = false ) {
+	// Make sure timestamp is a positive integer.
+	if ( ! is_numeric( $event->timestamp ) || $event->timestamp <= 0 ) {
+		if ( $wp_error ) {
+			return new WP_Error(
+				'invalid_timestamp',
+				__( 'Event timestamp must be a valid Unix timestamp.' )
+			);
+		}
+
+		return false;
+	}
 
 	$schedules = wp_get_schedules();
-	$schedule = $event->schedule;
+
+	if ( ! isset( $schedules[ $event->schedule ] ) ) {
+		if ( $wp_error ) {
+			return new WP_Error(
+				'invalid_schedule',
+				__( 'Event schedule does not exist.' )
+			);
+		}
+
+		return false;
+	}
 
 	$job = new Job();
 	$job->hook = $event->hook;
@@ -443,7 +548,14 @@ function schedule_recurring_event( $event ) {
 		$job->schedule = $event->schedule;
 	}
 
-	$job->save();
+	$result = $job->save();
+	if ( ! $result && $wp_error ) {
+		return new WP_Error(
+			'could_not_set',
+			__( 'The cron event list could not be saved.' )
+		);
+	}
+	return $result;
 }
 
 /**
@@ -552,7 +664,7 @@ function update_cron_array( $value, $old_value ) {
  * @return array Overridden cron array.
  */
 function get_cron_array( $value ) {
-	if ( ! empty( $value ) ) {
+	if ( $value !== false ) {
 		// Something else is trying to filter the value, let it
 		return $value;
 	}
