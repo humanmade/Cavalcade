@@ -126,11 +126,11 @@ install_db() {
 # tests for Cavalcade to ensure the plugin does
 # not change the behaviour.
 install_core_cron_tests() {
-	download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/tests/cron.php "$TRAVIS_BUILD_DIR"/tests/class-wp-core-cron.php
+	download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/tests/cron.php "$TRAVIS_BUILD_DIR"/tests/tests/class-wp-core-cron.php
 }
 
 
 install_wp
 install_test_suite
-install_db
 install_core_cron_tests
+install_db

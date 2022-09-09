@@ -9,16 +9,16 @@ use WP_UnitTestCase;
  * @ticket 64
  */
 class Tests_Rescheduling extends WP_UnitTestCase {
-	function setUp() {
-		parent::setUp();
+	function set_up() {
+		parent::set_up();
 		// make sure the schedule is clear
 		_set_cron_array( [] );
 	}
 
-	function tearDown() {
+	function tear_down() {
 		// make sure the schedule is clear
 		_set_cron_array( [] );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	function test_recheduling() {

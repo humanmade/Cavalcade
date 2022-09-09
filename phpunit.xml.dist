@@ -7,17 +7,16 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
-			<directory prefix="class-" suffix=".php">tests</directory>
+		<testsuite name="cavalcade">
+			<directory prefix="class-" suffix=".php">tests/tests</directory>
 		</testsuite>
 	</testsuites>
-	<filter>
-		<blacklist>
-			<directory suffix=".php">.</directory>
-		</blacklist>
-		<whitelist>
-			<directory suffix=".php">./inc</directory>
-			<file>./plugin.php</file>
-		</whitelist>
-	</filter>
+	<groups>
+		<exclude>
+			<group>32656</group>
+			<group>49961</group>
+			<group>53635</group>
+			<group>53950</group>
+		</exclude>
+	</groups>
 </phpunit>
