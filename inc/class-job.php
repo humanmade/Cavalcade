@@ -70,6 +70,7 @@ class Job {
 
 		self::flush_query_cache();
 		wp_cache_set( "job::{$this->id}", $this, 'cavalcade-jobs' );
+		return (bool) $result;
 	}
 
 	public function delete( $options = [] ) {
