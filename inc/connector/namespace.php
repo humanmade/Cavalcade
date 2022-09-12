@@ -121,8 +121,8 @@ function pre_schedule_event( $pre, $event, $wp_error = false ) {
 		// Unchanged recurring event.
 		if ( $wp_error ) {
 			return new WP_Error(
-				'unchanged_recurring_event',
-				__( 'A recurring event already exists.' )
+				'duplicate_event',
+				__( 'A duplicate event already exists.' )
 			);
 		}
 		return false;
