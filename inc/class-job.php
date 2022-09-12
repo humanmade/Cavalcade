@@ -353,15 +353,16 @@ class Job {
 
 			// Timestamp array range.
 			if ( is_array( $args['timestamp'] ) && count( $args['timestamp'] ) === 2 ) {
+				// SQL BETWEEN is inclusive of start and end values.
 				return (
-					$event->nextrun > date( DATE_FORMAT, (int) $args['timestamp'][0] )
+					$event->nextrun >= date( DATE_FORMAT, (int) $args['timestamp'][0] )
 					&& $event->nextrun <= date( DATE_FORMAT, (int) $args['timestamp'][1] )
 				);
 			}
 
 			// Default integer timestamp.
 			if ( is_int( $args['timestamp'] ) ) {
-				return $event->timestamp === date( DATE_FORMAT, (int) $args['timestamp'] );
+				return $event->nextrun === date( DATE_FORMAT, (int) $args['timestamp'] );
 			}
 
 			return true;
