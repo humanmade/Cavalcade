@@ -195,8 +195,8 @@ function pre_reschedule_event( $pre, $event, $wp_error = false ) {
 		if ( $wp_error ) {
 			if ( ! is_wp_error( $jobs ) ) {
 				$jobs = new WP_Error(
-					'schedule_event_false',
-					__( 'A plugin disallowed this event.' )
+					'invalid_event',
+					__( 'Event does not exist.', 'cavalcade' )
 				);
 			}
 			return $jobs;
@@ -258,7 +258,7 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args, $wp_error = false
 			if ( ! is_wp_error( $jobs ) ) {
 				$jobs = new WP_Error(
 					'invalid_event',
-					__( 'Event does not exist.' )
+					__( 'Event does not exist.', 'cavalcade' )
 				);
 			}
 			return $jobs;
