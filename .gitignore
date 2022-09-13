@@ -1,0 +1,4 @@
+tests/tests/class-wp-core-cron.php
+.phpunit.result.cache
+composer.lock
+vendor/
