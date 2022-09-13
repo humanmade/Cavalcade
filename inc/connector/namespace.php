@@ -29,7 +29,7 @@ function bootstrap() {
 /**
  * Schedule an event with Cavalcade.
  *
- * @param null|bool $pre Value to return instead. Default null to continue adding the event.
+ * @param null|bool|WP_Error $pre Value to return instead. Default null to continue adding the event.
  * @param stdClass $event {
  *     An object containing an event's data.
  *
@@ -40,7 +40,7 @@ function bootstrap() {
  *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
  * }
  * @param bool $wp_error If true returns a WP_Error instead of false.
- * @return null|bool|WP_Error True if event successfully scheduled. False for failure.
+ * @return null|bool|WP_Error True if event successfully scheduled. False or WP_Error for failure.
  */
 function pre_schedule_event( $pre, $event, $wp_error = false ) {
 	// Allow other filters to do their thing.
@@ -151,7 +151,7 @@ function pre_schedule_event( $pre, $event, $wp_error = false ) {
  * To ensure the next run time is in the future, it is recommended you delete and reschedule
  * a job.
  *
- * @param null|bool $pre   Value to return instead. Default null to continue adding the event.
+ * @param null|bool|WP_Error $pre Value to return instead. Default null to continue adding the event.
  * @param stdClass  $event {
  *     An object containing an event's data.
  *
@@ -162,7 +162,7 @@ function pre_schedule_event( $pre, $event, $wp_error = false ) {
  *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
  * }
  * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
- * @return bool True if event successfully rescheduled. False for failure.
+ * @return bool|WP_Error True if event successfully rescheduled. False or WP_Error for failure.
  */
 function pre_reschedule_event( $pre, $event, $wp_error = false ) {
 	// Allow other filters to do their thing.
@@ -232,12 +232,12 @@ function pre_reschedule_event( $pre, $event, $wp_error = false ) {
  * The $timestamp and $hook parameters are required so that the event can be
  * identified.
  *
- * @param null|bool $pre       Value to return instead. Default null to continue unscheduling the event.
+ * @param null|bool|WP_Error $pre Value to return instead. Default null to continue unscheduling the event.
  * @param int       $timestamp Timestamp for when to run the event.
  * @param string    $hook      Action hook, the execution of which will be unscheduled.
  * @param array     $args      Arguments to pass to the hook's callback function.
  * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
- * @return null|bool True if event successfully unscheduled. False for failure.
+ * @return null|bool|WP_Error True if event successfully unscheduled. False or WP_Error for failure.
  */
 function pre_unschedule_event( $pre, $timestamp, $hook, $args, $wp_error = false ) {
 	// Allow other filters to do their thing.
@@ -282,13 +282,13 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args, $wp_error = false
  * {@link https://php.net/manual/en/language.types.boolean.php PHP documentation}. Use
  * the `===` operator for testing the return value of this function.
  *
- * @param null|array $pre  Value to return instead. Default null to continue unscheduling the event.
+ * @param null|array|WP_Error $pre Value to return instead. Default null to continue unscheduling the event.
  * @param string     $hook Action hook, the execution of which will be unscheduled.
  * @param array|null $args Arguments to pass to the hook's callback function, null to clear all
  *                         events regardless of arugments.
  * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
- * @return bool|int  On success an integer indicating number of events unscheduled (0 indicates no
- *                   events were registered with the hook and arguments combination), false if
+ * @return bool|int|WP_Error On success an integer indicating number of events unscheduled (0 indicates no
+ *                   events were registered with the hook and arguments combination), false or WP_Error if
  *                   unscheduling one or more events fail.
 */
 function pre_clear_scheduled_hook( $pre, $hook, $args, $wp_error = false ) {
@@ -351,11 +351,11 @@ function pre_clear_scheduled_hook( $pre, $hook, $args, $wp_error = false ) {
  * {@link https://php.net/manual/en/language.types.boolean.php PHP documentation}. Use
  * the `===` operator for testing the return value of this function.
  *
- * @param null|array $pre  Value to return instead. Default null to continue unscheduling the hook.
+ * @param null|array|WP_Error $pre Value to return instead. Default null to continue unscheduling the hook.
  * @param string     $hook Action hook, the execution of which will be unscheduled.
  * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
- * @return bool|int On success an integer indicating number of events unscheduled (0 indicates no
- *                  events were registered on the hook), false if unscheduling fails.
+ * @return bool|int|WP_Error On success an integer indicating number of events unscheduled (0 indicates no
+ *                  events were registered on the hook), false or WP_Error if unscheduling fails.
  */
 function pre_unschedule_hook( $pre, $hook, $wp_error = false ) {
 	return pre_clear_scheduled_hook( $pre, $hook, null, $wp_error );
@@ -474,7 +474,7 @@ function pre_get_ready_cron_jobs( $pre ) {
  *     @param int|null $interval Time in seconds between events (derived from `$schedule` value)
  * }
  * @param bool $wp_error Optional. Whether to return a WP_Error on failure. Default false.
- * @return stdClass Event object passed in (as we aren't hijacking it)
+ * @return bool|stdClass|WP_Error Event object passed in (as we aren't hijacking it). False or WP_Error if job not saved.
  */
 function schedule_event( $event, $wp_error = false ) {
 	// Make sure timestamp is a positive integer.
