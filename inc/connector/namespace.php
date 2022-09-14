@@ -384,7 +384,7 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 	$jobs = Job::get_jobs_by_query( [
 		'args' => null,
 		'hook' => null,
-		'limit' => 500, // High bounded limit, should be enough to get all upcoming jobs.
+		'limit' => 100,
 	] );
 
 	$filter = [
