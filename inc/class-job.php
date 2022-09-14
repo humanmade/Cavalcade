@@ -1,6 +1,6 @@
 <?php
 /**
- * phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+ * phpcs:ignoreFile WordPress.DB.PreparedSQL.NotPrepared
  */
 
 namespace HM\Cavalcade\Plugin;
@@ -310,6 +310,41 @@ class Job {
 		$sql = "SELECT * FROM `{$table}` WHERE site = %d";
 		$sql_params[] = $args['site'];
 
+		if ( is_string( $args['hook'] ) ) {
+			$sql .= ' AND hook = %s';
+			$sql_params[] = $args['hook'];
+		}
+
+		if ( ! is_null( $args['args'] ) ) {
+			$sql .= ' AND args = %s';
+			$sql_params[] = serialize( $args['args'] );
+		}
+
+		// Timestamp 'future' shortcut.
+		if ( $args['timestamp'] === 'future' ) {
+			$sql .= " AND nextrun > %s";
+			$sql_params[] = date( DATE_FORMAT );
+		}
+
+		// Timestamp past shortcut.
+		if ( $args['timestamp'] === 'past' ) {
+			$sql .= " AND nextrun <= %s";
+			$sql_params[] = date( DATE_FORMAT );
+		}
+
+		// Timestamp array range.
+		if ( is_array( $args['timestamp'] ) && count( $args['timestamp'] ) === 2 ) {
+			$sql .= ' AND nextrun BETWEEN %s AND %s';
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][0] );
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'][1] );
+		}
+
+		// Default integer timestamp.
+		if ( is_int( $args['timestamp'] ) ) {
+			$sql .= ' AND nextrun = %s';
+			$sql_params[] = date( DATE_FORMAT, (int) $args['timestamp'] );
+		}
+
 		$sql .= ' AND status IN(' . implode( ',', array_fill( 0, count( $args['statuses'] ), '%s' ) ) . ')';
 		$sql_params = array_merge( $sql_params, $args['statuses'] );
 
@@ -318,6 +353,11 @@ class Job {
 			$sql .= ' DESC';
 		} else {
 			$sql .= ' ASC';
+		}
+
+		if ( $args['limit'] > 0 ) {
+			$sql .= ' LIMIT %d';
+			$sql_params[] = $args['limit'];
 		}
 
 		// Cache results.
@@ -329,48 +369,6 @@ class Job {
 			$query = $wpdb->prepare( $sql, $sql_params );
 			$results = $wpdb->get_results( $query );
 			wp_cache_set( "jobs::{$query_hash}", $results, 'cavalcade-jobs' );
-		}
-
-		// Filter results array.
-		$results = array_filter( $results, function ( $event ) use ( $args ) : bool {
-			if ( is_string( $args['hook'] ) && $event->hook !== $args['hook'] ) {
-				return false;
-			}
-
-			if ( ! is_null( $args['args'] ) && $event->args !== serialize( $args['args'] ) ) {
-				return false;
-			}
-
-			// Timestamp 'future' shortcut.
-			if ( $args['timestamp'] === 'future' ) {
-				return $event->nextrun > date( DATE_FORMAT );
-			}
-
-			// Timestamp past shortcut.
-			if ( $args['timestamp'] === 'past' ) {
-				return $event->nextrun <= date( DATE_FORMAT );
-			}
-
-			// Timestamp array range.
-			if ( is_array( $args['timestamp'] ) && count( $args['timestamp'] ) === 2 ) {
-				// SQL BETWEEN is inclusive of start and end values.
-				return (
-					$event->nextrun >= date( DATE_FORMAT, (int) $args['timestamp'][0] )
-					&& $event->nextrun <= date( DATE_FORMAT, (int) $args['timestamp'][1] )
-				);
-			}
-
-			// Default integer timestamp.
-			if ( is_int( $args['timestamp'] ) ) {
-				return $event->nextrun === date( DATE_FORMAT, (int) $args['timestamp'] );
-			}
-
-			return true;
-		} );
-
-		// Limit results.
-		if ( $args['limit'] > 0 ) {
-			$results = array_slice( $results, 0, $args['limit'] );
 		}
 
 		if ( $args['__raw'] === true ) {

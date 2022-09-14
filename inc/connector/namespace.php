@@ -382,16 +382,39 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 	}
 
 	$jobs = Job::get_jobs_by_query( [
+		'args' => null,
+		'hook' => null,
+		'limit' => 500, // High bounded limit, should be enough to get all upcoming jobs.
+	] );
+
+	$filter = [
 		'hook' => $hook,
 		'timestamp' => $timestamp,
 		'args' => $args,
-	] );
+	];
+
+	// Filter results array.
+	$jobs = array_filter( $jobs, function ( $event ) use ( $filter ) : bool {
+		if ( is_string( $filter['hook'] ) && $event->hook !== $filter['hook'] ) {
+			return false;
+		}
+
+		if ( ! is_null( $filter['args'] ) && $event->args !== $filter['args'] ) {
+			return false;
+		}
+
+		if ( is_int( $filter['timestamp'] ) ) {
+			return $event->nextrun === $filter['timestamp'];
+		}
+
+		return true;
+	} );
 
 	if ( is_wp_error( $jobs ) || empty( $jobs ) ) {
 		return false;
 	}
 
-	$job = $jobs[0];
+	$job = array_shift( $jobs );
 
 	$value = (object) [
 		'hook'      => $job->hook,
