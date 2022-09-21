@@ -387,6 +387,10 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 		'limit' => 100,
 	] );
 
+	if ( is_wp_error( $jobs ) ) {
+		return false;
+	}
+
 	$filter = [
 		'hook' => $hook,
 		'timestamp' => $timestamp,
@@ -394,27 +398,31 @@ function pre_get_scheduled_event( $pre, $hook, $args, $timestamp ) {
 	];
 
 	// Filter results array.
-	$jobs = array_filter( $jobs, function ( $event ) use ( $filter ) : bool {
-		if ( is_string( $filter['hook'] ) && $event->hook !== $filter['hook'] ) {
-			return false;
+	$find_job = function ( array $jobs, array $filter ) {
+		foreach ( $jobs as $job ) {
+			if ( is_string( $filter['hook'] ) && $job->hook !== $filter['hook'] ) {
+				continue;
+			}
+
+			if ( ! is_null( $filter['args'] ) && $job->args !== $filter['args'] ) {
+				continue;
+			}
+
+			if ( is_int( $filter['timestamp'] ) && $job->nextrun !== $filter['timestamp'] ) {
+				continue;
+			}
+
+			return $job;
 		}
 
-		if ( ! is_null( $filter['args'] ) && $event->args !== $filter['args'] ) {
-			return false;
-		}
+		return null;
+	};
 
-		if ( is_int( $filter['timestamp'] ) ) {
-			return $event->nextrun === $filter['timestamp'];
-		}
+	$job = $find_job( $jobs, compact( 'hook', 'timestamp', 'args' ) );
 
-		return true;
-	} );
-
-	if ( is_wp_error( $jobs ) || empty( $jobs ) ) {
+	if ( ! $job ) {
 		return false;
 	}
-
-	$job = array_shift( $jobs );
 
 	$value = (object) [
 		'hook'      => $job->hook,
