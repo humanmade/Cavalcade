@@ -21,6 +21,12 @@ function bootstrap() {
 	register_cli_commands();
 	maybe_populate_site_option();
 	Connector\bootstrap();
+
+	add_action('admin_menu', __NAMESPACE__ . '\\registerAdminUI');
+}
+
+function registerAdminUI() {
+	AdminUI\bootstrap();
 }
 
 /**
@@ -222,4 +228,40 @@ function get_database_version() {
 	}
 
 	return $version;
+}
+
+function get_logs($offset = 0, $filter = '', $limit = 20) {
+	global $wpdb;
+
+	$log_table = $wpdb->base_prefix . 'cavalcade_logs';
+	$job_table = $wpdb->base_prefix . 'cavalcade_jobs';
+
+	$where = '';
+
+	if ($filter) {
+		$where = "WHERE hook LIKE '%" . $filter . "%'";
+	}
+
+	$query = "SELECT $log_table.*, $job_table.hook,$job_table.args FROM {$wpdb->base_prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id $where ORDER BY $log_table.timestamp DESC LIMIT $limit OFFSET $offset";
+
+	return $wpdb->get_results($query);
+}
+
+function get_logs_count($filter = '') {
+	global $wpdb;
+
+	$log_table = $wpdb->base_prefix . 'cavalcade_logs';
+	$job_table = $wpdb->base_prefix . 'cavalcade_jobs';
+
+	$where = '';
+
+	if ($filter) {
+		$where = "WHERE hook LIKE '%" . $filter . "%'";
+	}
+
+	$where = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+	$query = "SELECT COUNT(*) FROM {$wpdb->base_prefix}cavalcade_logs INNER JOIN $job_table ON $log_table.job = $job_table.id $where";
+
+	return $wpdb->get_var($query);
 }

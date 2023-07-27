@@ -17,6 +17,7 @@ const DATABASE_VERSION = 4;
 require __DIR__ . '/inc/namespace.php';
 require __DIR__ . '/inc/class-job.php';
 require __DIR__ . '/inc/connector/namespace.php';
+require __DIR__ . '/inc/adminUI/namespace.php';
 require __DIR__ . '/inc/upgrade/namespace.php';
 
 bootstrap();
