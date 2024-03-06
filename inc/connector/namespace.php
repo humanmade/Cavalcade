@@ -268,8 +268,14 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args, $wp_error = false
 
 	$job = $jobs[0];
 
-	// Delete it.
-	$job->delete();
+	// Check if the job is running more then 3 hours from the timestamp.
+	$is_delete_running = ( time() - $job->start ) > 10800;
+	if ( $is_delete_running ) {
+		$job->delete( [ 'delete_running' => $is_delete_running ] );
+	} else {
+		// Delete it.
+		$job->delete();
+	}
 
 	return true;
 }
