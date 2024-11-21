@@ -64,7 +64,7 @@ class Job {
 			];
 			$result = $wpdb->update( $this->get_table(), $data, $where, $this->row_format( $data ), $this->row_format( $where ) );
 		} else {
-			$result = $wpdb->insert( $this->get_table(), $data, $this->row_format( $data ) );
+			$result = $wpdb->replace( $this->get_table(), $data, $this->row_format( $data ) );
 			$this->id = $wpdb->insert_id;
 		}
 

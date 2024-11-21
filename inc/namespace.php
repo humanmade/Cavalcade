@@ -90,8 +90,14 @@ function create_tables() {
 		`interval` int unsigned DEFAULT NULL,
 		`status` varchar(255) NOT NULL DEFAULT 'waiting',
 		`schedule` varchar(255) DEFAULT NULL,
+		`hash` binary(32) GENERATED ALWAYS AS (
+			UNHEX(SHA2(CONCAT_WS(
+				'-', `site`, `hook`, `args`, `nextrun`, `schedule`
+			), 256))
+		) STORED,
 
 		PRIMARY KEY (`id`),
+		UNIQUE INDEX `uniq` (`hash`),
 		KEY `status` (`status`),
 		KEY `site` (`site`),
 		KEY `hook` (`hook`)
