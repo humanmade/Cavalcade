@@ -64,8 +64,14 @@ class Job {
 			];
 			$result = $wpdb->update( $this->get_table(), $data, $where, $this->row_format( $data ), $this->row_format( $where ) );
 		} else {
-			$result = $wpdb->replace( $this->get_table(), $data, $this->row_format( $data ) );
-			$this->id = $wpdb->insert_id;
+			$result = $wpdb->insert( $this->get_table(), $data, $this->row_format( $data ) );
+
+			// Swallow duplicate insert errors.
+			if ( ! $result && strpos( $wpdb->last_error, '[1062]' ) !== false ) {
+				$result = true;
+			} else {
+				$this->id = $wpdb->insert_id;
+			}
 		}
 
 		self::flush_query_cache();
