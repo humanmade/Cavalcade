@@ -92,7 +92,7 @@ function create_tables() {
 		`schedule` varchar(255) DEFAULT NULL,
 		`hash` binary(32) GENERATED ALWAYS AS (
 			UNHEX(SHA2(CONCAT_WS(
-				'-', `site`, `hook`, `args`, `nextrun`, `schedule`
+				'-', `site`, `hook`, `args`, `nextrun`, `status`, `schedule`
 			), 256))
 		) STORED,
 

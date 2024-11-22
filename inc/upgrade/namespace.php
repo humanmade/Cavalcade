@@ -119,7 +119,7 @@ function upgrade_database_5() {
 		"ALTER TABLE `{$wpdb->base_prefix}cavalcade_jobs`
 			ADD COLUMN `hash` BINARY(32) GENERATED ALWAYS AS (
 			  	UNHEX(SHA2(CONCAT_WS(
-					'-', `site`, `hook`, `args`, `nextrun`, `schedule`
+					'-', `site`, `hook`, `args`, `nextrun`, `status`, `schedule`
 				), 256))
 			) STORED;",
 		// Remove full group by mode requirement if set.
