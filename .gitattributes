@@ -1,0 +1,9 @@
+# Exclude development-only files from Composer dist archives.
+# Files listed here will not be included when running `composer archive`
+# or when Packagist builds a dist zip from a tagged release.
+
+/.travis.yml        export-ignore
+/phpcs.ruleset.xml  export-ignore
+/phpunit.xml.dist   export-ignore
+/docs               export-ignore
+/tests              export-ignore
