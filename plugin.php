@@ -12,7 +12,7 @@
 namespace HM\Cavalcade\Plugin;
 
 const DATE_FORMAT = 'Y-m-d H:i:s';
-const DATABASE_VERSION = 4;
+const DATABASE_VERSION = 5;
 
 require __DIR__ . '/inc/namespace.php';
 require __DIR__ . '/inc/class-job.php';
