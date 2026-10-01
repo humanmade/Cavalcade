@@ -269,9 +269,7 @@ function pre_unschedule_event( $pre, $timestamp, $hook, $args, $wp_error = false
 	$job = $jobs[0];
 
 	// Delete it.
-	$job->delete();
-
-	return true;
+	return $job->delete();
 }
 
 /**
